@@ -1,6 +1,7 @@
 package assignment.Kirana.Controllers;
 
 //import assignment.Kirana.Helpers.GenerateJwtHelper;
+import assignment.Kirana.Helpers.JwtFunctions;
 import assignment.Kirana.models.UserAuth;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,12 @@ public class GenerateJwt {
         Claims authdata = Jwts.parser().verifyWith(key).build().parseSignedClaims(jwtToken).getPayload();
         String userId = authdata.get("userId", String.class);
         return ResponseEntity.ok(userId);
+    }
+
+    @GetMapping("/getSecret")
+    public ResponseEntity<String> getSecret(){
+        JwtFunctions jwtHelper  = new JwtFunctions();
+        String key = jwtHelper.genSecretString();
+        return ResponseEntity.ok(key);
     }
 }
