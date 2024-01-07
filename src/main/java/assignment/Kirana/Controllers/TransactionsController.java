@@ -20,9 +20,7 @@ public class TransactionsController {
     @PostMapping("/add")
     public ResponseEntity<String> addTransaction(@RequestHeader("Authorization") String AuthorizationHeader,@RequestBody Transactions data){
         try{
-            String jwtToken = AuthorizationHeader.replace("Bearer ","");
-            String secret = "secret";
-            Key key =  Keys.hmacShaKeyFor(secretKey.getBytes());
+
 
 
 
