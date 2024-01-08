@@ -1,6 +1,7 @@
 package assignment.Kirana.Controllers;
 
 
+import assignment.Kirana.Helpers.JwtFunctions;
 import assignment.Kirana.Services.UserService;
 import assignment.Kirana.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import java.util.List;
 
 @RestController
 public class UserController {
+    @Autowired
+    private JwtFunctions jwtHelper;
     @Autowired
 
     private UserService userService;
@@ -55,6 +58,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error while getting user, try again");
         }
 
+    }
+
+    @GetMapping("/user/login/{userId}")
+    public ResponseEntity<String> login(@PathVariable String userId){
+        //JwtFunctions jwtHelper = new JwtFunctions();
+        String loginToken = jwtHelper.generateJwtForUser(userId);
+        return ResponseEntity.ok(loginToken);
     }
 
 }
