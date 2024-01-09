@@ -1,8 +1,8 @@
 package assignment.Kirana.Services;
 
 import assignment.Kirana.Repositories.TransactionRepository;
+import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.MonthlyReport;
-import assignment.Kirana.models.Transactions;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;

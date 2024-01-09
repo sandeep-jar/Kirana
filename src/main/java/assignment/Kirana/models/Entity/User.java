@@ -1,4 +1,4 @@
-package assignment.Kirana.models;
+package assignment.Kirana.models.Entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,4 +15,13 @@ public class User {
 
     private String name;
     private String mobile;
+    private String role = "user";
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getRole() {
+        return this.role;
+    }
 }

@@ -1,6 +1,6 @@
 package assignment.Kirana.Repositories;
 
-import assignment.Kirana.models.Transactions;
+import assignment.Kirana.models.Entity.Transactions;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

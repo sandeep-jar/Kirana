@@ -1,4 +1,4 @@
-package assignment.Kirana.models;
+package assignment.Kirana.models.Entity;
 
 import java.time.LocalDateTime;
 import lombok.Data;

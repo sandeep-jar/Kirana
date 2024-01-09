@@ -1,7 +1,7 @@
 package assignment.Kirana.Services;
 
 import assignment.Kirana.Repositories.TransactionRepository;
-import assignment.Kirana.models.Transactions;
+import assignment.Kirana.models.Entity.Transactions;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

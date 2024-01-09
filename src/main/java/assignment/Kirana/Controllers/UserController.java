@@ -1,8 +1,9 @@
 package assignment.Kirana.Controllers;
 
 import assignment.Kirana.Helpers.JwtFunctions;
+import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.UserService;
-import assignment.Kirana.models.User;
+import assignment.Kirana.models.Entity.User;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class UserController {
     @Autowired private JwtFunctions jwtHelper;
+
+    @Autowired private JwtServices jwtServices;
     @Autowired private UserService userService;
 
     @PostMapping("/user")
@@ -56,8 +59,8 @@ public class UserController {
 
     @GetMapping("/user/login/{userId}")
     public ResponseEntity<String> login(@PathVariable String userId) {
-        // JwtFunctions jwtHelper = new JwtFunctions();
-        String loginToken = jwtHelper.generateJwtForUser(userId);
+
+        String loginToken = jwtServices.generateJwtForUser(userId);
         return ResponseEntity.ok(loginToken);
     }
 }

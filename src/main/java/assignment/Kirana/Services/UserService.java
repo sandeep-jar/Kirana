@@ -1,7 +1,7 @@
 package assignment.Kirana.Services;
 
 import assignment.Kirana.Repositories.UserRepository;
-import assignment.Kirana.models.User;
+import assignment.Kirana.models.Entity.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
