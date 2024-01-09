@@ -59,7 +59,6 @@ public class UserController {
 
     @GetMapping("/user/login/{userId}")
     public ResponseEntity<String> login(@PathVariable String userId) {
-
         String loginToken = jwtServices.generateJwtForUser(userId);
         return ResponseEntity.ok(loginToken);
     }

@@ -17,6 +17,7 @@ public class JwtFunctions {
             "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
     public SecretKey getSignKey() {
+
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         return key;

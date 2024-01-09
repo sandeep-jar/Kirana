@@ -3,6 +3,7 @@ package assignment.Kirana.Controllers;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.ReportService;
 import assignment.Kirana.models.MonthlyReport;
+import assignment.Kirana.models.Response.ApiResponse;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ public class ReportController {
             @RequestHeader("Authorization") String AuthorizationHeader,
             @PathVariable String userId,
             @PathVariable int month) {
+
         try {
             String jwtToken = AuthorizationHeader.replace("Bearer ", "");
             // JwtFunctions jwtHelper = new JwtFunctions();
@@ -31,6 +33,8 @@ public class ReportController {
                         .body("login expired login again");
             }
             if (isAdmin) {
+                ApiResponse api = new ApiResponse();
+
                 LocalDateTime currentTime = LocalDateTime.now();
                 int year = currentTime.getYear();
                 MonthlyReport report = reportService.getMonthlyReportOfUser(month, year, userId);

@@ -15,6 +15,9 @@ public class ReportService {
 
     @Autowired TransactionRepository transactionRepo;
 
+    /*
+     * map to get number of days in a month based on month number
+     * */
     private static final Map<Integer, Integer> monthDaysMap =
             new HashMap<Integer, Integer>() {
                 {
@@ -32,7 +35,10 @@ public class ReportService {
                     put(12, 31); // December
                 }
             };
-
+    /*
+    @param list of transactions
+    calculates the sum of amount in given list of transactions
+     */
     public Double amountSum(List<Transactions> transactions) {
         Double sum = 0.0;
 
@@ -42,6 +48,10 @@ public class ReportService {
 
         return sum;
     }
+
+    /*
+    calculates the daily average transaction
+     */
 
     public Double dailyAverage(int day, int month, int year) {
         // Fetch transactions for the specified day, month, and year
@@ -54,6 +64,9 @@ public class ReportService {
         return average.orElse(0.0);
     }
 
+    /*
+    calculates monthly average transaction
+     */
     public Double monthlyAverage(int month, int year) {
         // Fetch transactions for the specified month and year
         List<Transactions> transactions = transactionRepo.findAllByMonthAndYear(month, year);
@@ -66,6 +79,10 @@ public class ReportService {
         return average.orElse(0.0);
     }
 
+    /*
+    calculates yearly average transactions
+     */
+
     public Double YearlyAverage(int year) {
         List<Transactions> transactions = transactionRepo.findAllByYear(year);
         OptionalDouble average =
@@ -74,6 +91,11 @@ public class ReportService {
         // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
     }
+
+    /*
+    rounds off a double value to 2 decimal places
+    uses RoundedMode.Half_Up
+     */
 
     private Double round(Double value, int decimalPlaces) {
         if (value == null) {
@@ -84,6 +106,9 @@ public class ReportService {
         return bd.doubleValue();
     }
 
+    /*
+    Creates Monthly report for the given user
+     */
     public MonthlyReport getMonthlyReportOfUser(int month, int year, String userId) {
         List<Transactions> monthlyCredit =
                 transactionsService.getMonthlyCreditOfUser(month, year, userId);

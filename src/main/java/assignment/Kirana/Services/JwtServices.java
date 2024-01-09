@@ -10,18 +10,33 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** Service class for handling JWT (JSON Web Token) related operations. */
 @Service
 public class JwtServices {
+
     @Autowired private UserService userService;
+
+    /** The secret key used for JWT signing and verification. */
     public static final String SECRET =
             "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
+    /**
+     * Retrieves the secret key for JWT signing and verification.
+     *
+     * @return SecretKey object
+     */
     public SecretKey getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
         return key;
     }
 
+    /**
+     * Verifies if a given JWT has expired.
+     *
+     * @param jwt The JWT token to be checked for expiration.
+     * @return true if the token has expired, false otherwise.
+     */
     public boolean verifyExpiry(String jwt) {
         try {
             Claims tokenData =
@@ -32,46 +47,48 @@ public class JwtServices {
                             .getPayload();
             Date expiry = tokenData.getExpiration();
             return expiry.before(new Date());
-
         } catch (Exception err) {
             System.out.println(err.getMessage());
             return false;
         }
     }
 
+    /**
+     * Verifies if a given JWT has the "admin" role.
+     *
+     * @param jwtToken The JWT token to be checked for the "admin" role.
+     * @return true if the token has the "admin" role, false otherwise.
+     */
     public boolean verifyAdmin(String jwtToken) {
         try {
-            // Define the expected admin role
             String admin = "admin";
-
-            // Parse and verify the JWT token using the provided signing key
             Claims tokenData =
                     Jwts.parser()
-                            .verifyWith(
-                                    getSignKey()) // Assuming you have a method to get the signing
-                            // key
+                            .verifyWith(getSignKey())
                             .build()
                             .parseSignedClaims(jwtToken)
                             .getPayload();
-
-            // Check if the role in the token matches the expected admin role
             if (tokenData.get("role", String.class).equals(admin)) {
-                return true; // Token has admin role
+                return true;
             } else {
-                return false; // Token does not have admin role
+                return false;
             }
-
         } catch (Exception err) {
-            // Handle any exceptions that occur during token parsing or verification
             System.out.println("Error occurred in parsing JWT");
             System.out.println(err.getMessage());
             return false;
         }
     }
 
+    /**
+     * Verifies if a given JWT has a specific user ID.
+     *
+     * @param jwtToken The JWT token to be checked for the specified user ID.
+     * @param user The user ID to compare with the one in the JWT.
+     * @return true if the token has the specified user ID, false otherwise.
+     */
     public boolean verifyUser(String jwtToken, String user) {
         try {
-
             Claims tokenData =
                     Jwts.parser()
                             .verifyWith(getSignKey())
@@ -83,14 +100,19 @@ public class JwtServices {
             } else {
                 return false;
             }
-
         } catch (Exception err) {
-            System.out.println("error occured in parsing jwt");
+            System.out.println("Error occurred in parsing JWT");
             System.out.println(err.getMessage());
             return false;
         }
     }
 
+    /**
+     * Retrieves the user ID from a given JWT token.
+     *
+     * @param jwtToken The JWT token from which to extract the user ID.
+     * @return The user ID extracted from the JWT token.
+     */
     public String getUserIdFromJwt(String jwtToken) {
         Claims claimData =
                 Jwts.parser()
@@ -101,10 +123,15 @@ public class JwtServices {
         return claimData.get("userId", String.class);
     }
 
+    /**
+     * Generates a JWT token for a specified user ID with an expiration time of 2 days.
+     *
+     * @param userId The user ID for which to generate the JWT token.
+     * @return The generated JWT token.
+     */
     public String generateJwtForUser(String userId) {
-
         User user = userService.getUser(userId);
-        // 2days
+        // 2 days
         Date expirationDate = new Date(System.currentTimeMillis() + 100 * 60 * 60 * 24 * 2);
 
         return Jwts.builder()
