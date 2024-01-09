@@ -18,9 +18,7 @@ public class ExchangeRatesResponse {
     private String base;
     private Map<String, Double> rates;
 
-    public Map<String,Double> getRateData(){
+    public Map<String, Double> getRateData() {
         return this.rates;
-
     }
 }
-

@@ -5,8 +5,7 @@ public class UserAuth {
     private String paymentCompleted;
 
     // No-arg constructor
-    public UserAuth() {
-    }
+    public UserAuth() {}
 
     // All-arg constructor
     public UserAuth(String userId, String paymentCompleted) {

@@ -3,36 +3,36 @@ package assignment.Kirana.Services;
 import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.MonthlyReport;
 import assignment.Kirana.models.Transactions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ReportService {
-    @Autowired
-    TransactionsService transactionsService;
+    @Autowired TransactionsService transactionsService;
 
+    @Autowired TransactionRepository transactionRepo;
 
-    @Autowired
-    TransactionRepository transactionRepo;
+    private static final Map<Integer, Integer> monthDaysMap =
+            new HashMap<Integer, Integer>() {
+                {
+                    put(1, 31); // January
+                    put(2, 28); // February (non-leap year)
+                    put(3, 31); // March
+                    put(4, 30); // April
+                    put(5, 31); // May
+                    put(6, 30); // June
+                    put(7, 31); // July
+                    put(8, 31); // August
+                    put(9, 30); // September
+                    put(10, 31); // October
+                    put(11, 30); // November
+                    put(12, 31); // December
+                }
+            };
 
-    private static final Map<Integer, Integer> monthDaysMap = new HashMap<Integer, Integer>() {{
-        put(1, 31); // January
-        put(2, 28); // February (non-leap year)
-        put(3, 31); // March
-        put(4, 30); // April
-        put(5, 31); // May
-        put(6, 30); // June
-        put(7, 31); // July
-        put(8, 31); // August
-        put(9, 30); // September
-        put(10, 31); // October
-        put(11, 30); // November
-        put(12, 31); // December
-    }};
     public Double amountSum(List<Transactions> transactions) {
         Double sum = 0.0;
 
@@ -45,10 +45,10 @@ public class ReportService {
 
     public Double dailyAverage(int day, int month, int year) {
         // Fetch transactions for the specified day, month, and year
-        List<Transactions> transactions = transactionRepo.findAllByDayAndMonthAndYear(day, month, year);
-        OptionalDouble average = transactions.stream()
-                .mapToDouble(Transactions::getAmount)
-                .average();
+        List<Transactions> transactions =
+                transactionRepo.findAllByDayAndMonthAndYear(day, month, year);
+        OptionalDouble average =
+                transactions.stream().mapToDouble(Transactions::getAmount).average();
 
         // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
@@ -59,23 +59,20 @@ public class ReportService {
         List<Transactions> transactions = transactionRepo.findAllByMonthAndYear(month, year);
 
         // Calculate the monthly average of amounts
-        OptionalDouble average = transactions.stream()
-                .mapToDouble(Transactions::getAmount)
-                .average();
+        OptionalDouble average =
+                transactions.stream().mapToDouble(Transactions::getAmount).average();
 
         // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
     }
 
-    public Double YearlyAverage(int year){
+    public Double YearlyAverage(int year) {
         List<Transactions> transactions = transactionRepo.findAllByYear(year);
-        OptionalDouble average = transactions.stream()
-                .mapToDouble(Transactions::getAmount)
-                .average();
+        OptionalDouble average =
+                transactions.stream().mapToDouble(Transactions::getAmount).average();
 
         // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
-
     }
 
     private Double round(Double value, int decimalPlaces) {
@@ -88,10 +85,12 @@ public class ReportService {
     }
 
     public MonthlyReport getMonthlyReportOfUser(int month, int year, String userId) {
-        List<Transactions> monthlyCredit = transactionsService.getMonthlyCreditOfUser(month, year, userId);
-        List<Transactions> monthlyDebit = transactionsService.getMonthlyDebitOfUser(month, year, userId);
+        List<Transactions> monthlyCredit =
+                transactionsService.getMonthlyCreditOfUser(month, year, userId);
+        List<Transactions> monthlyDebit =
+                transactionsService.getMonthlyDebitOfUser(month, year, userId);
 
-        Double totalCreditAmount =round(amountSum(monthlyCredit), 2);
+        Double totalCreditAmount = round(amountSum(monthlyCredit), 2);
         Double totalDebitAmount = round(amountSum(monthlyDebit), 2);
 
         Double totalAmount = totalDebitAmount + totalCreditAmount;
@@ -108,6 +107,5 @@ public class ReportService {
         report.setAverageTransaction(averageTransaction);
 
         return report;
-
     }
 }
