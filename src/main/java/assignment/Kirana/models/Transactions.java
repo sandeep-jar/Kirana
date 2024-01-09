@@ -1,14 +1,12 @@
 package assignment.Kirana.models;
 
+import java.time.LocalDateTime;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
-import java.time.LocalDateTime;
-
 @Data
 public class Transactions {
-    @Id
-    private String transactionId;
+    @Id private String transactionId;
     private String from;
     private Double amount;
     private String initialCurrency;
@@ -47,8 +45,8 @@ public class Transactions {
         this.month = month;
     }
 
-    public void setFrom(String from){
-        this.from  = from;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getInitialCurrency() {
@@ -66,6 +64,7 @@ public class Transactions {
     public void setFinalCurrency(String finalCurrency) {
         this.finalCurrency = finalCurrency;
     }
+
     public Double getAmount() {
         return this.amount;
     }
@@ -74,9 +73,10 @@ public class Transactions {
         this.amount = amount;
     }
 
-    public String getFrom(){
+    public String getFrom() {
         return this.from;
     }
+
     public void setTransactionTime(LocalDateTime transactionTime) {
         this.transactionTime = transactionTime;
     }

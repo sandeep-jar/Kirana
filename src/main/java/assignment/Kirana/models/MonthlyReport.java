@@ -43,6 +43,4 @@ public class MonthlyReport {
     public void setAverageTransaction(Double averageTransaction) {
         this.averageTransaction = averageTransaction;
     }
-
-
 }
