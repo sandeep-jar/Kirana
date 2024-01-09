@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserAuth {
+
     private String userId;
+
     private String paymentCompleted;
-
-    // No-arg constructor
-
 }

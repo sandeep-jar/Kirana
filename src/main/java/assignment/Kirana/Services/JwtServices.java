@@ -1,5 +1,6 @@
 package assignment.Kirana.Services;
 
+import assignment.Kirana.Exceptions.InvalidJwtException;
 import assignment.Kirana.models.Entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -74,9 +75,9 @@ public class JwtServices {
                 return false;
             }
         } catch (Exception err) {
-            System.out.println("Error occurred in parsing JWT");
-            System.out.println(err.getMessage());
             return false;
+
+
         }
     }
 

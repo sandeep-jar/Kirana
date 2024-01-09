@@ -11,14 +11,16 @@ import lombok.NoArgsConstructor;
 public class ExchangeRatesResponse {
 
     private boolean success;
-    private String terms;
-    private String privacy;
-    private long timestamp;
-    private String date;
-    private String base;
-    private Map<String, Double> rates;
 
-    public Map<String, Double> getRateData() {
-        return this.rates;
-    }
+    private String terms;
+
+    private String privacy;
+
+    private long timestamp;
+
+    private String date;
+
+    private String base;
+
+    private Map<String, Double> rates;
 }

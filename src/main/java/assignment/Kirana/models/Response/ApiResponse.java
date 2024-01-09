@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class ApiResponse {
 
     private boolean success = true;
-    //    @JsonIgnoreProperties(value = {"createdAt", "updatedAt"})
+
     private Object data;
 
     private Object view;

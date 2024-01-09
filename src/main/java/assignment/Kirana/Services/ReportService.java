@@ -2,7 +2,7 @@ package assignment.Kirana.Services;
 
 import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.Entity.Transactions;
-import assignment.Kirana.models.MonthlyReport;
+import assignment.Kirana.models.Response.MonthlyReport;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;

@@ -40,7 +40,7 @@ public class TransactionsController {
             data.setInitialCurrency(currencyType);
             data.setFinalCurrency("USD");
             ExchangeRatesResponse ExcahngeData = exchangeRateService.getRates();
-            Map<String, Double> rates = ExcahngeData.getRateData();
+            Map<String, Double> rates = ExcahngeData.getRates();
             Double convertedAmount = data.getAmount() / rates.get(currencyType);
             BigDecimal roundedAmount =
                     new BigDecimal(convertedAmount).setScale(2, RoundingMode.HALF_UP);

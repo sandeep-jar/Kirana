@@ -1,4 +1,4 @@
-package assignment.Kirana.models;
+package assignment.Kirana.models.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
