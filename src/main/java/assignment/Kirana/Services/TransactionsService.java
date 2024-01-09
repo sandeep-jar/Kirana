@@ -31,42 +31,20 @@ public class TransactionsService {
         return transactionRepo.save(transaction);
     }
 
-    public Double dailyAverage(int day, int month, int year) {
-        // Fetch transactions for the specified day, month, and year
-        List<Transactions> transactions = transactionRepo.findAllByDayAndMonthAndYear(day, month, year);
-
-        // Calculate the daily average of amounts
-        OptionalDouble average = transactions.stream()
-                .mapToDouble(Transactions::getAmount)
-                .average();
-
-        // Return the result, or 0.0 if there are no transactions
-        return average.orElse(0.0);
-    }
-
-    public Double monthlyAverage(int month, int year) {
-        // Fetch transactions for the specified month and year
-        List<Transactions> transactions = transactionRepo.findAllByMonthAndYear(month, year);
-
-        // Calculate the monthly average of amounts
-        OptionalDouble average = transactions.stream()
-                .mapToDouble(Transactions::getAmount)
-                .average();
-
-        // Return the result, or 0.0 if there are no transactions
-        return average.orElse(0.0);
-    }
-
-    public Double YearlyAverage(int year){
-        List<Transactions> transactions = transactionRepo.findAllByYear(year);
-        OptionalDouble average = transactions.stream()
-                .mapToDouble(Transactions::getAmount)
-                .average();
-
-        // Return the result, or 0.0 if there are no transactions
-        return average.orElse(0.0);
+    public List<Transactions> getAllTransactionOfMonth(int month, int year){
+        return transactionRepo.findAllByMonthAndYear(month,year);
 
     }
+
+    public List<Transactions> getMonthlyDebitOfUser(int month , int year, String userId){
+        return transactionRepo.findAllByMonthAndYearAndFrom(month,year,userId);
+
+    }
+
+    public List<Transactions> getMonthlyCreditOfUser(int month, int year, String userId){
+        return transactionRepo.findAllByMonthAndYearAndTo(month,year,userId);
+    }
+
     public List<Transactions> getAllTransactions(){
         return  transactionRepo.findAll();
     }
