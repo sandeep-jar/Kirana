@@ -56,4 +56,13 @@ public class ExceptionController {
         response.setError(unAuthenticatedRequest.getMessage());
         return new ResponseEntity<ApiResponse>(response, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(value = UserNotFound.class)
+    public ResponseEntity<ApiResponse> userNotFoundHandler(UserNotFound userNotFoundException) {
+        ApiResponse response = new ApiResponse();
+        response.setStatus("error");
+        response.setSuccess(false);
+        response.setError(userNotFoundException.getMessage());
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.NOT_FOUND);
+    }
 }
