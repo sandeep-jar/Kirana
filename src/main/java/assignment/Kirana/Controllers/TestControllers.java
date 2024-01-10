@@ -38,13 +38,4 @@ public class TestControllers {
         List<Transactions> list = transactionRepository.findAllByMonthAndYear(1, 2024);
         return ResponseEntity.ok(list);
     }
-
-    //    @GetMapping("/MonthlyAverage")
-    //    public ResponseEntity<Double> MonthlyAverage(){
-    //
-    //        Double ans = reportService.monthlyAverage(1,2024);
-    //        return ResponseEntity.ok(ans);
-    //
-    //
-    //    }
 }

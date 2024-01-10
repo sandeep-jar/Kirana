@@ -1,9 +1,11 @@
 package assignment.Kirana.Controllers;
 
+import assignment.Kirana.Configurations.RateLimitConfig;
 import assignment.Kirana.Helpers.JwtFunctions;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.UserService;
 import assignment.Kirana.models.Entity.User;
+import io.github.bucket4j.Bucket;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ public class UserController {
 
     @Autowired private JwtServices jwtServices;
     @Autowired private UserService userService;
+
+    @Autowired private RateLimitConfig rateLimitConfig;
 
     @PostMapping("/user")
     public ResponseEntity<String> addUser(@RequestBody User user) {
@@ -43,6 +47,7 @@ public class UserController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         try {
+
             User user = userService.getUser(userId);
             if (user == null) {
                 return ResponseEntity.status(404).body("no such user");
@@ -59,7 +64,13 @@ public class UserController {
 
     @GetMapping("/user/login/{userId}")
     public ResponseEntity<String> login(@PathVariable String userId) {
-        String loginToken = jwtServices.generateJwtForUser(userId);
-        return ResponseEntity.ok(loginToken);
+        Bucket buckets = rateLimitConfig.resolveBucket(userId);
+        if (buckets.tryConsume(1)) {
+            String loginToken = jwtServices.generateJwtForUser(userId);
+            return ResponseEntity.ok(loginToken);
+
+        } else {
+            return new ResponseEntity<String>("too many request", HttpStatus.TOO_MANY_REQUESTS);
+        }
     }
 }
