@@ -1,23 +1,49 @@
 package assignment.Kirana.Services;
 
+import assignment.Kirana.Exceptions.NotAdminException;
+import assignment.Kirana.Exceptions.TokenExpiredException;
 import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.Entity.Transactions;
+import assignment.Kirana.models.Response.ApiResponse;
 import assignment.Kirana.models.Response.MonthlyReport;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * The ReportService class provides business logic for generating monthly reports and handling
+ * related operations.
+ */
 @Service
 public class ReportService {
-    @Autowired TransactionsService transactionsService;
 
-    @Autowired TransactionRepository transactionRepo;
+    private final TransactionsService transactionsService;
+    private final TransactionRepository transactionRepo;
+    private final JwtServices jwtServices;
+
+    /**
+     * Constructor to initialize the ReportService with required services.
+     *
+     * @param transactionsService An instance of TransactionsService for fetching transaction data.
+     * @param transactionRepository An instance of TransactionRepository for database interactions.
+     * @param jwtServices An instance of JwtServices for JWT token validation.
+     */
+    @Autowired
+    public ReportService(
+            TransactionsService transactionsService,
+            TransactionRepository transactionRepository,
+            JwtServices jwtServices) {
+        this.jwtServices = jwtServices;
+        this.transactionRepo = transactionRepository;
+        this.transactionsService = transactionsService;
+    }
 
     /*
-     * map to get number of days in a month based on month number
-     * */
+     * Map to get the number of days in a month based on the month number.
+     */
     private static final Map<Integer, Integer> monthDaysMap =
             new HashMap<Integer, Integer>() {
                 {
@@ -35,68 +61,71 @@ public class ReportService {
                     put(12, 31); // December
                 }
             };
-    /*
-    @param list of transactions
-    calculates the sum of amount in given list of transactions
+
+    /**
+     * Calculates the sum of amounts in a given list of transactions.
+     *
+     * @param transactions The list of transactions for which the sum is calculated.
+     * @return The sum of amounts in the provided transactions.
      */
     public Double amountSum(List<Transactions> transactions) {
         Double sum = 0.0;
-
         for (Transactions transaction : transactions) {
             sum += transaction.getAmount();
         }
-
         return sum;
     }
 
-    /*
-    calculates the daily average transaction
+    /**
+     * Calculates the daily average transaction amount for a specified day, month, and year.
+     *
+     * @param day The day for which the daily average is calculated.
+     * @param month The month for which the daily average is calculated.
+     * @param year The year for which the daily average is calculated.
+     * @return The daily average transaction amount.
      */
-
     public Double dailyAverage(int day, int month, int year) {
-        // Fetch transactions for the specified day, month, and year
         List<Transactions> transactions =
                 transactionRepo.findAllByDayAndMonthAndYear(day, month, year);
         OptionalDouble average =
                 transactions.stream().mapToDouble(Transactions::getAmount).average();
-
-        // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
     }
 
-    /*
-    calculates monthly average transaction
+    /**
+     * Calculates the monthly average transaction amount for a specified month and year.
+     *
+     * @param month The month for which the monthly average is calculated.
+     * @param year The year for which the monthly average is calculated.
+     * @return The monthly average transaction amount.
      */
     public Double monthlyAverage(int month, int year) {
-        // Fetch transactions for the specified month and year
         List<Transactions> transactions = transactionRepo.findAllByMonthAndYear(month, year);
-
-        // Calculate the monthly average of amounts
         OptionalDouble average =
                 transactions.stream().mapToDouble(Transactions::getAmount).average();
-
-        // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
     }
 
-    /*
-    calculates yearly average transactions
+    /**
+     * Calculates the yearly average transaction amount for a specified year.
+     *
+     * @param year The year for which the yearly average is calculated.
+     * @return The yearly average transaction amount.
      */
-
     public Double YearlyAverage(int year) {
         List<Transactions> transactions = transactionRepo.findAllByYear(year);
         OptionalDouble average =
                 transactions.stream().mapToDouble(Transactions::getAmount).average();
-
-        // Return the result, or 0.0 if there are no transactions
         return average.orElse(0.0);
     }
 
-    /*
-    rounds off a double value to 2 decimal places
-    uses RoundedMode.Half_Up
+    /**
+     * Rounds off a double value to a specified number of decimal places using RoundingMode.HALF_UP.
+     *
+     * @param value The double value to be rounded.
+     * @param decimalPlaces The number of decimal places to round off to.
+     * @return The rounded double value.
      */
-
     private Double round(Double value, int decimalPlaces) {
         if (value == null) {
             return null;
@@ -106,23 +135,32 @@ public class ReportService {
         return bd.doubleValue();
     }
 
-    /*
-    Creates Monthly report for the given user
+    /**
+     * Creates a MonthlyReport for the given user, including total and average transaction details.
+     *
+     * @param month The month for which the report is generated.
+     * @param year The year for which the report is generated.
+     * @param userId The ID of the user for whom the report is generated.
+     * @return MonthlyReport containing total and average transaction details.
      */
-    public MonthlyReport getMonthlyReportOfUser(int month, int year, String userId) {
+    public MonthlyReport createMonthlyReportOfUser(int month, int year, String userId) {
+        // Fetch monthly credit and debit transactions for the specified user
         List<Transactions> monthlyCredit =
                 transactionsService.getMonthlyCreditOfUser(month, year, userId);
         List<Transactions> monthlyDebit =
                 transactionsService.getMonthlyDebitOfUser(month, year, userId);
 
+        // Calculate total credit and debit amounts, and round off to 2 decimal places
         Double totalCreditAmount = round(amountSum(monthlyCredit), 2);
         Double totalDebitAmount = round(amountSum(monthlyDebit), 2);
 
+        // Calculate total amount, average credit, average debit, and average transaction
         Double totalAmount = totalDebitAmount + totalCreditAmount;
         Double averageCredit = round(totalCreditAmount / monthDaysMap.get(month), 2);
         Double averageDebit = round(totalDebitAmount / monthDaysMap.get(month), 2);
         Double averageTransaction = round(totalAmount / monthDaysMap.get(month), 2);
 
+        // Create and return MonthlyReport
         MonthlyReport report = new MonthlyReport();
         report.setTotalTransaction(totalAmount);
         report.setTotalDebit(totalDebitAmount);
@@ -132,5 +170,40 @@ public class ReportService {
         report.setAverageTransaction(averageTransaction);
 
         return report;
+    }
+
+    /**
+     * Generates an ApiResponse containing the MonthlyReport for the given user.
+     *
+     * @param month The month for which the report is generated.
+     * @param userId The ID of the user for whom the report is generated.
+     * @param jwtToken The JWT token for authentication and authorization.
+     * @return ApiResponse containing the MonthlyReport and appropriate status.
+     * @throws TokenExpiredException If the provided JWT token is expired.
+     * @throws NotAdminException If the user is not an admin and does not have access.
+     */
+    public ApiResponse getMonthlyReportApiResponse(int month, String userId, String jwtToken)
+            throws TokenExpiredException, NotAdminException {
+        // Verify JWT token expiry and admin status
+        boolean isExpired = jwtServices.verifyExpiry(jwtToken);
+        boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+
+        // Handle token expiration exception
+        if (isExpired) {
+            throw new TokenExpiredException("Login session expired, please login again.");
+        }
+
+        // Handle not admin exception
+        if (!isAdmin) {
+            throw new NotAdminException("Only admin users can access this service.");
+        }
+
+        // Create ApiResponse with MonthlyReport data and return
+        ApiResponse api = new ApiResponse();
+        LocalDateTime currentTime = LocalDateTime.now();
+        int year = currentTime.getYear();
+        MonthlyReport report = createMonthlyReportOfUser(month, year, userId);
+        api.setData(report);
+        return api;
     }
 }

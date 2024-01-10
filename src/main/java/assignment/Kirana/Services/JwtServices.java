@@ -1,6 +1,5 @@
 package assignment.Kirana.Services;
 
-import assignment.Kirana.Exceptions.InvalidJwtException;
 import assignment.Kirana.models.Entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -76,8 +75,6 @@ public class JwtServices {
             }
         } catch (Exception err) {
             return false;
-
-
         }
     }
 

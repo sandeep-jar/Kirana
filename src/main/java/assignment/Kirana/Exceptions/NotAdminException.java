@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class InvalidJwtException extends RuntimeException {
-    public InvalidJwtException(String message) {
+public class NotAdminException extends RuntimeException {
+    public NotAdminException(String message) {
         super(message);
     }
 }

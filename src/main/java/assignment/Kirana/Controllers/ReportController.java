@@ -3,51 +3,51 @@ package assignment.Kirana.Controllers;
 import assignment.Kirana.Exceptions.InvalidJwtException;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.ReportService;
-import assignment.Kirana.models.Response.MonthlyReport;
 import assignment.Kirana.models.Response.ApiResponse;
-import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/** The ReportController class handles HTTP requests related to generating monthly reports. */
 @RestController
 @RequestMapping("/report")
 public class ReportController {
-    @Autowired private ReportService reportService;
 
-    @Autowired private JwtServices jwtServices;
+    private ReportService reportService;
+    private JwtServices jwtServices;
 
+    /**
+     * Constructor to initialize the ReportController with required services.
+     *
+     * @param reportService An instance of ReportService for generating monthly reports.
+     * @param jwtServices An instance of JwtServices for JWT token validation.
+     */
+    @Autowired
+    public ReportController(ReportService reportService, JwtServices jwtServices) {
+        this.reportService = reportService;
+        this.jwtServices = jwtServices;
+    }
+
+    /**
+     * Retrieves the monthly report for a specified user and month.
+     *
+     * @param AuthorizationHeader The Authorization header containing the JWT token.
+     * @param userId The ID of the user for whom the report is requested.
+     * @param month The month for which the report is requested.
+     * @return ResponseEntity<ApiResponse> containing the result of the monthly report request.
+     * @throws InvalidJwtException If the provided JWT token is invalid.
+     */
     @GetMapping("/monthly/{month}/{userId}")
-    public ResponseEntity<?> getMonthlyReport(
+    public ResponseEntity<ApiResponse> getMonthlyReport(
             @RequestHeader("Authorization") String AuthorizationHeader,
             @PathVariable String userId,
-            @PathVariable int month) {
+            @PathVariable int month)
+            throws InvalidJwtException {
+        // Extract JWT token from Authorization header
+        String jwtToken = AuthorizationHeader.replace("Bearer ", "");
 
-        try {
-            String jwtToken = AuthorizationHeader.replace("Bearer ", "");
-            // JwtFunctions jwtHelper = new JwtFunctions();
-            boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
-            boolean expired = jwtServices.verifyExpiry(jwtToken);
-
-            if (expired) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("login expired login again");
-            }
-            if (isAdmin) {
-                ApiResponse api = new ApiResponse();
-
-                LocalDateTime currentTime = LocalDateTime.now();
-                int year = currentTime.getYear();
-                MonthlyReport report = reportService.getMonthlyReportOfUser(month, year, userId);
-                return ResponseEntity.ok(report);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-            }
-
-        } catch (Exception err) {
-            System.out.println("error occured in getMonthlyReport" + err.getMessage());
-            return ResponseEntity.internalServerError().body(null);
-        }
+        // Validate JWT token and return the ResponseEntity with the monthly report ApiResponse
+        return ResponseEntity.ok(
+                reportService.getMonthlyReportApiResponse(month, userId, jwtToken));
     }
 }
