@@ -36,4 +36,24 @@ public class ExceptionController {
         response.setError(notAdminException.getMessage());
         return new ResponseEntity<ApiResponse>(response, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(value = InvalidAmountException.class)
+    public ResponseEntity<ApiResponse> notAdminException(
+            InvalidAmountException invalidAmountException) {
+        ApiResponse response = new ApiResponse();
+        response.setSuccess(false);
+        response.setStatus("error");
+        response.setError(invalidAmountException.getMessage());
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = UnAuthenticatedRequest.class)
+    public ResponseEntity<ApiResponse> notAdminException(
+            UnAuthenticatedRequest unAuthenticatedRequest) {
+        ApiResponse response = new ApiResponse();
+        response.setSuccess(false);
+        response.setStatus("error");
+        response.setError(unAuthenticatedRequest.getMessage());
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.UNAUTHORIZED);
+    }
 }
