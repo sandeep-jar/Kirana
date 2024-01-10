@@ -129,6 +129,7 @@ public class JwtServices {
      * @return The generated JWT token.
      */
     public String generateJwtForUser(String userId) {
+        System.out.println("entered the jwt token generation");
         User user = userService.getUser(userId);
         // 2 days
         Date expirationDate = new Date(System.currentTimeMillis() + 100 * 60 * 60 * 24 * 2);
