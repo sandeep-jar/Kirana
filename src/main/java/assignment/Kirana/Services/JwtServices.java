@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /** Service class for handling JWT (JSON Web Token) related operations. */
@@ -17,8 +18,8 @@ public class JwtServices {
     @Autowired private UserService userService;
 
     /** The secret key used for JWT signing and verification. */
-    public static final String SECRET =
-            "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
+    @Value("${secretKey}")
+    public String SECRET;
 
     /**
      * Retrieves the secret key for JWT signing and verification.
