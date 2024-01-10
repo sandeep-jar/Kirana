@@ -8,13 +8,15 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import org.redisson.config.Config;
 import org.redisson.jcache.configuration.RedissonConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
-@EnableCaching
+@EnableAutoConfiguration(exclude = CacheAutoConfiguration.class)
 public class RedisConfig {
     @Bean
     public Config config() {
