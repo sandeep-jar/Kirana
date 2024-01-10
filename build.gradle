@@ -37,6 +37,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.security:spring-security-core:6.1.6'
 	implementation 'org.springframework.data:spring-data-redis:3.2.0'
+	implementation 'io.github.resilience4j:resilience4j-spring-boot2:2.1.0'
+	implementation 'org.springframework.boot:spring-boot-starter-aop:3.2.0'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'

@@ -4,6 +4,7 @@ import assignment.Kirana.Helpers.JwtFunctions;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.UserService;
 import assignment.Kirana.models.Entity.User;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -41,7 +42,9 @@ public class UserController {
         }
     }
 
+    @RateLimiter(name = "try")
     @GetMapping("/user/{userId}")
+
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         try {
             User user = userService.getUser(userId);
@@ -58,8 +61,10 @@ public class UserController {
         }
     }
 
+    @RateLimiter(name = "try")
     @GetMapping("/user/login/{userId}")
-    @Cacheable(value = "jwt",key = "#userId")
+    @Cacheable(value = "jwt", key = "#userId")
+
     public ResponseEntity<String> login(@PathVariable String userId) {
         String loginToken = jwtServices.generateJwtForUser(userId);
         return ResponseEntity.ok(loginToken);
