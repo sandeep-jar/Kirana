@@ -134,4 +134,20 @@ public class ExceptionController {
         response.setError(invalidDateComponentsException.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Handles InvalidCurrencyException and returns a response with BAD_REQUEST status.
+     *
+     * @param invalidCurrencyException The exception to be handled.
+     * @return ResponseEntity containing ApiResponse with error details and status code.
+     */
+    @ExceptionHandler(value = InvalidCurrencyException.class)
+    public ResponseEntity<ApiResponse> invalidDateException(
+           InvalidCurrencyException invalidCurrencyException) {
+        ApiResponse response = new ApiResponse();
+        response.setStatus("error");
+        response.setSuccess(false);
+        response.setError(invalidCurrencyException.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }

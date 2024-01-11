@@ -3,6 +3,7 @@ package assignment.Kirana.Services;
 import assignment.Kirana.Exceptions.InvalidAmountException;
 import assignment.Kirana.Exceptions.UnAuthenticatedRequest;
 import assignment.Kirana.Repositories.TransactionRepository;
+import assignment.Kirana.Validators.TransactionValidator;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.ExchangeRatesResponse;
 import assignment.Kirana.models.Response.ApiResponse;
@@ -21,6 +22,8 @@ public class TransactionsService {
     private final TransactionRepository transactionRepo;
     private final JwtServices jwtServices;
 
+    private final TransactionValidator transactionValidator;
+
     private final ExchangeRateService exchangeRateService;
 
     /**
@@ -34,10 +37,11 @@ public class TransactionsService {
     public TransactionsService(
             TransactionRepository transactionRepository,
             JwtServices jwtServices,
-            ExchangeRateService exchangeRateService) {
+            ExchangeRateService exchangeRateService , TransactionValidator transactionValidator) {
         this.jwtServices = jwtServices;
         this.transactionRepo = transactionRepository;
         this.exchangeRateService = exchangeRateService;
+        this.transactionValidator = transactionValidator;
     }
 
     /**
@@ -47,6 +51,7 @@ public class TransactionsService {
      * @return The added transaction.
      */
     public Transactions addTransaction(TransactionRequest data) {
+        transactionValidator.validateTransactionDetails(data);
         Transactions transaction = new Transactions();
         transaction.setInitialCurrency(data.getInitialCurrency());
         transaction.setFrom(data.getFrom());

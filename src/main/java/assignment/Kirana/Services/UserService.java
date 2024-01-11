@@ -2,9 +2,9 @@ package assignment.Kirana.Services;
 
 import assignment.Kirana.Exceptions.UserNotFound;
 import assignment.Kirana.Repositories.UserRepository;
+import assignment.Kirana.Validators.UserValidation;
 import assignment.Kirana.models.Entity.User;
 import assignment.Kirana.models.Response.ApiResponse;
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    @Autowired private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserValidation validator;
+
+    @Autowired
+    public UserService(UserRepository userRepository, UserValidation validator) {
+        this.userRepository = userRepository;
+        this.validator = validator;
+    }
 
     /**
      * Adds a new user to the system.
@@ -24,9 +31,8 @@ public class UserService {
      */
     public ApiResponse addUser(User user) {
         try {
-            if (user.getName() == null) {
-                throw new InvalidParameterException("enter valid name");
-            }
+            // this validates the user throws exception if any parameter is invalid
+            validator.validateUser(user);
             User data = userRepository.save(user);
             ApiResponse response = new ApiResponse();
             response.setData(data);
@@ -60,11 +66,6 @@ public class UserService {
      */
     public User getUser(String id) {
         Optional<User> result = userRepository.findById(id);
-        User user = result.orElse(null);
-        if (user == null) {
-            throw new UserNotFound("such user doesn't exist");
-        } else {
-            return user;
-        }
+        return result.orElse(null);
     }
 }
