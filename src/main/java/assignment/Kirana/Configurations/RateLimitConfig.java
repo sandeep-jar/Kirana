@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RateLimitConfig {
 
+
     /** ProxyManager for managing the creation and retrieval of buckets. */
     @Autowired public ProxyManager<String> buckets;
 
@@ -49,9 +50,14 @@ public class RateLimitConfig {
         }
 
         // Configuring rate limit: 2 requests per minute
-        Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
-        Bandwidth limit = Bandwidth.classic(2, refill);
 
-        return () -> (BucketConfiguration.builder().addLimit(limit).build());
+        // Refill is deprecated
+//        Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
+//        Bandwidth limit = Bandwidth.classic(2, refill);
+
+        // new syntax from bucket4j documentation
+        return () ->
+                (BucketConfiguration.builder().addLimit(limit -> limit.capacity(2).refillIntervally(2,Duration.ofMinutes(1))).build());
+       // return () -> (BucketConfiguration.builder().addLimit(limit).build());
     }
 }
