@@ -1,5 +1,4 @@
 package assignment.Kirana.Controllers;
-
 import assignment.Kirana.Configurations.RateLimitConfig;
 import assignment.Kirana.Helpers.JwtFunctions;
 import assignment.Kirana.Services.JwtServices;
@@ -61,6 +60,7 @@ public class UserController {
                     .body("Error while getting user, try again");
         }
     }
+
 
     @GetMapping("/user/login/{userId}")
     public ResponseEntity<String> login(@PathVariable String userId) {

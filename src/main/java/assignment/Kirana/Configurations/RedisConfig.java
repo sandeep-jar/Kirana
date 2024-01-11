@@ -1,7 +1,5 @@
 package assignment.Kirana.Configurations;
 
-import com.giffing.bucket4j.spring.boot.starter.config.cache.SyncCacheResolver;
-import com.giffing.bucket4j.spring.boot.starter.config.cache.jcache.JCacheCacheResolver;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.grid.jcache.JCacheProxyManager;
 import javax.cache.CacheManager;
@@ -10,10 +8,8 @@ import org.redisson.config.Config;
 import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 @Configuration
 @EnableAutoConfiguration(exclude = CacheAutoConfiguration.class)
@@ -38,9 +34,4 @@ public class RedisConfig {
     }
 
     /** reference: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/73 */
-    @Bean
-    @Primary
-    public SyncCacheResolver bucket4jCacheResolver(CacheManager cacheManager) {
-        return new JCacheCacheResolver(cacheManager);
-    }
 }

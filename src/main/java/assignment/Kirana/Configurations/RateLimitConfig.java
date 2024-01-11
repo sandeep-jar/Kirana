@@ -24,17 +24,15 @@ public class RateLimitConfig {
      */
     public Bucket resolveBucket(String key) {
         Supplier<BucketConfiguration> configSupplier = getConfigSupplierForUser(key);
-
         // Does not always create a new bucket, but instead returns the existing one if it exists.
         return buckets.builder().build(key, configSupplier);
     }
 
     private Supplier<BucketConfiguration> getConfigSupplierForUser(String key) {
+
         Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
-        // create 10 token bandwidth
         Bandwidth limit = Bandwidth.classic(2, refill);
 
-        // Bandwidth limit = Bandwidth.
 
         return () -> (BucketConfiguration.builder().addLimit(limit).build());
     }
