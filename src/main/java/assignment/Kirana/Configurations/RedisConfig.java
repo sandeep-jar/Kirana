@@ -10,9 +10,16 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/** Configuration class for integrating Redis as a caching provider using Bucket4j library. */
 @Configuration
 @EnableCaching
 public class RedisConfig {
+
+    /**
+     * Configures the Redis connection details.
+     *
+     * @return Redis configuration.
+     */
     @Bean
     public Config config() {
         Config config = new Config();
@@ -20,17 +27,27 @@ public class RedisConfig {
         return config;
     }
 
-    @Bean(name= "Mymanager")
+    /**
+     * Creates and configures the CacheManager for Redis caching.
+     *
+     * @param config The Redis configuration.
+     * @return Configured CacheManager.
+     */
+    @Bean(name = "Mymanager")
     public CacheManager cacheManager(Config config) {
         CacheManager manager = Caching.getCachingProvider().getCacheManager();
         manager.createCache("cache", RedissonConfiguration.fromConfig(config));
         return manager;
     }
 
+    /**
+     * Creates a ProxyManager using JCache for distributed rate limiting.
+     *
+     * @param cacheManager The CacheManager used for rate limiting.
+     * @return ProxyManager for distributed rate limiting using JCache.
+     */
     @Bean
     ProxyManager<String> proxyManager(CacheManager cacheManager) {
         return new JCacheProxyManager<>(cacheManager.getCache("cache"));
     }
-
-    /** reference: https://github.com/MarcGiffing/bucket4j-spring-boot-starter/issues/73 */
 }

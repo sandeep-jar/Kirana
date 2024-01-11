@@ -15,6 +15,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** Service class for managing financial transactions. */
 @Service
 public class TransactionsService {
     private final TransactionRepository transactionRepo;
@@ -22,6 +23,13 @@ public class TransactionsService {
 
     private final ExchangeRateService exchangeRateService;
 
+    /**
+     * Constructor for TransactionsService.
+     *
+     * @param transactionRepository The repository for managing transactions.
+     * @param jwtServices The service for JWT token operations.
+     * @param exchangeRateService The service for fetching exchange rates.
+     */
     @Autowired
     public TransactionsService(
             TransactionRepository transactionRepository,
@@ -32,6 +40,12 @@ public class TransactionsService {
         this.exchangeRateService = exchangeRateService;
     }
 
+    /**
+     * Adds a new transaction to the system.
+     *
+     * @param data The transaction request data.
+     * @return The added transaction.
+     */
     public Transactions addTransaction(TransactionRequest data) {
         Transactions transaction = new Transactions();
         transaction.setInitialCurrency(data.getInitialCurrency());
@@ -58,6 +72,15 @@ public class TransactionsService {
         return transactionRepo.save(transaction);
     }
 
+    /**
+     * Handles a transaction request and performs necessary validations.
+     *
+     * @param jwtToken The JWT token for authentication.
+     * @param data The transaction request data.
+     * @return ApiResponse containing the result of the transaction.
+     * @throws UnAuthenticatedRequest If the request fails authentication.
+     * @throws InvalidAmountException If the transaction amount is invalid.
+     */
     public ApiResponse transactionHandler(String jwtToken, TransactionRequest data) {
         String userId = data.getFrom();
         boolean auth = jwtServices.verifyUser(jwtToken, userId);
@@ -74,26 +97,68 @@ public class TransactionsService {
         return response;
     }
 
+    /**
+     * Retrieves all transactions for a specific month and year.
+     *
+     * @param month The month for which transactions are to be retrieved.
+     * @param year The year for which transactions are to be retrieved.
+     * @return A list of Transactions for the specified month and year.
+     */
     public List<Transactions> getAllTransactionOfMonth(int month, int year) {
         return transactionRepo.findAllByMonthAndYear(month, year);
     }
 
+    /**
+     * Retrieves monthly debit transactions for a specific user.
+     *
+     * @param month The month for which transactions are to be retrieved.
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of debit Transactions for the specified month, year, and user.
+     */
     public List<Transactions> getMonthlyDebitOfUser(int month, int year, String userId) {
         return transactionRepo.findAllByMonthAndYearAndFrom(month, year, userId);
     }
 
+    /**
+     * Retrieves monthly credit transactions for a specific user.
+     *
+     * @param month The month for which transactions are to be retrieved.
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of credit Transactions for the specified month, year, and user.
+     */
     public List<Transactions> getMonthlyCreditOfUser(int month, int year, String userId) {
         return transactionRepo.findAllByMonthAndYearAndTo(month, year, userId);
     }
 
+    /**
+     * Retrieves yearly debit transactions for a specific user.
+     *
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of debit Transactions for the specified year and user.
+     */
     public List<Transactions> getYearlyDebitOfUser(int year, String userId) {
         return transactionRepo.findAllByYearAndFrom(year, userId);
     }
 
+    /**
+     * Retrieves yearly credit transactions for a specific user.
+     *
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of credit Transactions for the specified year and user.
+     */
     public List<Transactions> getYearlyCreditOfUser(int year, String userId) {
         return transactionRepo.findAllByYearAndTo(year, userId);
     }
 
+    /**
+     * Retrieves all transactions.
+     *
+     * @return A list of all Transactions.
+     */
     public List<Transactions> getAllTransactions() {
         return transactionRepo.findAll();
     }

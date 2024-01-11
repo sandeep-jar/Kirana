@@ -7,58 +7,79 @@ import io.jsonwebtoken.security.Keys;
 import java.security.SecureRandom;
 import java.util.Base64;
 import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+/** Service class for handling JWT (JSON Web Token) functions. */
 @Service
 public class JwtFunctions {
-    Environment environment;
-    public static final String SECRET =
-            "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-    public SecretKey getSignKey() {
+    private final Environment environment;
 
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
-        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
-        return key;
-    }
+    /** Secret key for JWT signature. Loaded from application properties. */
+    @Value("${secretKey}")
+    public String SECRET;
 
+    /**
+     * Constructor for JwtFunctions, injecting the environment.
+     *
+     * @param environment The Spring environment.
+     */
     public JwtFunctions(Environment environment) {
         this.environment = environment;
     }
 
+    /**
+     * Retrieves the signing key for JWT based on the provided secret.
+     *
+     * @return The SecretKey for JWT signing.
+     */
+    public SecretKey getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    /**
+     * Generates a random secret string for JWT signing.
+     *
+     * @return A randomly generated secret string.
+     */
     public String genSecretString() {
         byte[] keyBytes = new byte[32];
         new SecureRandom().nextBytes(keyBytes);
-        String key = Base64.getEncoder().encodeToString(keyBytes);
-        return key;
+        return Base64.getEncoder().encodeToString(keyBytes);
     }
 
+    /**
+     * Verifies if a given user matches the user in the JWT token.
+     *
+     * @param jwtToken The JWT token to be verified.
+     * @param user The user ID to be checked against the token.
+     * @return True if the user matches, false otherwise.
+     */
     public boolean verifyUser(String jwtToken, String user) {
         try {
-            //            String stringKey = environment.getProperty("jwt.secretString");
-            //            byte[] keyBytes = Base64.getDecoder().decode(stringKey);
-            //            SecretKey key  = Keys.hmacShaKeyFor(keyBytes);
-
             Claims tokenData =
                     Jwts.parser()
                             .verifyWith(getSignKey())
                             .build()
                             .parseSignedClaims(jwtToken)
                             .getPayload();
-            if (tokenData.get("userId", String.class).equals(user)) {
-                return true;
-            } else {
-                return false;
-            }
-
+            return tokenData.get("userId", String.class).equals(user);
         } catch (Exception err) {
-            System.out.println("error occured in parsing jwt");
+            System.out.println("Error occurred in parsing JWT");
             System.out.println(err.getMessage());
             return false;
         }
     }
 
+    /**
+     * Retrieves the user ID from the claims of a JWT token.
+     *
+     * @param jwtToken The JWT token to extract user ID from.
+     * @return The user ID extracted from the token.
+     */
     public String getUserNameFromJwt(String jwtToken) {
         Claims claimData =
                 Jwts.parser()
@@ -66,17 +87,16 @@ public class JwtFunctions {
                         .build()
                         .parseSignedClaims(jwtToken)
                         .getPayload();
-        String userId = claimData.get("userId", String.class);
-        return userId;
+        return claimData.get("userId", String.class);
     }
 
+    /**
+     * Generates a JWT token for a given user ID.
+     *
+     * @param userId The user ID for which the JWT token is generated.
+     * @return The generated JWT token.
+     */
     public String generateJwtForUser(String userId) {
-        //        String stringKey = environment.getProperty("jwt.secretString");
-        //        System.out.println("stringKey is");
-        //        System.out.println(stringKey);
-        //        byte[] keyBytes  = Base64.getDecoder().decode(stringKey);
-        //        SecretKey key  = Keys.hmacShaKeyFor(keyBytes);
-        String token = Jwts.builder().claim("userId", userId).signWith(getSignKey()).compact();
-        return token;
+        return Jwts.builder().claim("userId", userId).signWith(getSignKey()).compact();
     }
 }

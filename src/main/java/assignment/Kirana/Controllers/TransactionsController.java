@@ -1,7 +1,5 @@
 package assignment.Kirana.Controllers;
 
-import assignment.Kirana.Services.ExchangeRateService;
-import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.TransactionsService;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.Response.ApiResponse;
@@ -18,10 +16,7 @@ public class TransactionsController {
     private final TransactionsService transactionsService;
 
     @Autowired
-    public TransactionsController(
-            TransactionsService transactionsService,
-            ExchangeRateService exchangeRateService,
-            JwtServices jwtServices) {
+    public TransactionsController(TransactionsService transactionsService) {
         this.transactionsService = transactionsService;
     }
 

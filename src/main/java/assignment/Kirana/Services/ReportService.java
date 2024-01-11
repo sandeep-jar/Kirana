@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ReportService {
-
     private final TransactionsService transactionsService;
     private final TransactionRepository transactionRepo;
     private final JwtServices jwtServices;
@@ -174,6 +173,14 @@ public class ReportService {
         return report;
     }
 
+    /**
+     * Takes year userId and returns the YearlyReport, calculates : total amount,average
+     * credit,average debit,netAmount,average transaction,
+     *
+     * @param year year for which report is being created
+     * @param userId userId The user ID for whom the report is being generated.
+     * @return YearlyReport
+     */
     public YearlyReport createYearlyReportOfUser(int year, String userId) {
         // Fetch monthly credit and debit transactions for the specified user
         List<Transactions> YearlyCredit = transactionsService.getYearlyCreditOfUser(year, userId);
@@ -243,6 +250,17 @@ public class ReportService {
         return api;
     }
 
+    /**
+     * Generates an ApiResponse containing the MonthlyReport for the given user.
+     *
+     * @param year The year for which the report is generated.
+     * @param userId The ID of the user for whom the report is generated.
+     * @param jwtToken The JWT token for authentication and authorization.
+     * @return ApiResponse containing the MonthlyReport and appropriate status.
+     * @throws TokenExpiredException If the provided JWT token is expired.
+     * @throws NotAdminException If the user is not an admin and does not have access.
+     * @throws InvalidDateComponentsException if year is not valid
+     */
     public ApiResponse getYearlyReportApiResponse(int year, String userId, String jwtToken)
             throws TokenExpiredException, NotAdminException {
         // Verify JWT token expiry and admin status
