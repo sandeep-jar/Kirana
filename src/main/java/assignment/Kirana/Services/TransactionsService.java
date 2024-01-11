@@ -161,7 +161,8 @@ public class TransactionsService {
     }
 
     /**
-     * @return list of transactions of past 7 days where user is receiver
+     * @param userId userid of user whose transactions are being fetched
+     * @return list of transactions of past 7 days ,where user is receiver
      */
     public List<Transactions> getCreditTransactionOfPastWeek(String userId) {
         LocalDateTime currentTime = LocalDateTime.now();
@@ -172,7 +173,8 @@ public class TransactionsService {
     }
 
     /**
-     * @return list of transactions of past 7 days where user is sender
+     * @param userId userid of user whose transaction are being fetched
+     * @return list of transactions of past 7 days ,where user is sender
      */
     public List<Transactions> getDebitTransactionOfPastWeek(String userId) {
         LocalDateTime currentTime = LocalDateTime.now();

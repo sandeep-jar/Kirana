@@ -66,6 +66,11 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getYearlyReportApiResponse(year, userId, jwtToken));
     }
 
+    /**
+     * @param AuthHeader authorization header of request
+     * @param userId user requesting the report
+     * @return returns api response having weekly report or error message if any errors
+     */
     @GetMapping("/weekly/{userId}")
     public ResponseEntity<ApiResponse> getWeeklyReport(
             @RequestHeader("Authorization") String AuthHeader,

@@ -1,0 +1,33 @@
+urls for testing in localHost
+
+
+admin userId : kiranaStore
+valid user ids : user1, user2 , user3 ,user4
+
+for weekly report
+get request
+http://localhost:8080/report/weekly/{userId}
+
+for monthly report
+get request
+http://localhost:8080/report/monthly/{userId}
+
+for yearly report
+get request
+http://localhost:8080/report/yearly/{userId}
+
+for adding user
+post request
+body {"name":string , "mobile" :  10 digit string}
+http://localhost:8080/user/add
+
+for login and getting jwt token
+get request
+http://localhost:8080/user/login/{userId}
+
+for adding transaction
+post request
+authorization bearer token (get a jwt token from login)
+body {"from": String , "to" : String , "initialCurrency" : Currency code , "amount" : positive number}
+http://localhost:8080/transactions/add
+

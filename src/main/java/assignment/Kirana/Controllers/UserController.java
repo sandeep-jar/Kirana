@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/** Controller class for handling user-related operations. */
+/** Controller class for experimenting in jwt */
 @RestController
 public class UserController {
 
