@@ -6,6 +6,7 @@ import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.ReportService;
 import assignment.Kirana.models.Response.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/report")
 public class ReportController {
-    private ReportService reportService;
-    private JwtServices jwtServices;
+    private final ReportService reportService;
 
     /**
      * Constructor to initialize the ReportController with required services.
@@ -26,7 +26,6 @@ public class ReportController {
     public ReportController(
             ReportService reportService, JwtServices jwtServices, RateLimitConfig rateLimitConfig) {
         this.reportService = reportService;
-        this.jwtServices = jwtServices;
     }
 
     /**

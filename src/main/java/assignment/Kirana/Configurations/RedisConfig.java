@@ -6,13 +6,12 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import org.redisson.config.Config;
 import org.redisson.jcache.configuration.RedissonConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableAutoConfiguration(exclude = CacheAutoConfiguration.class)
+@EnableCaching
 public class RedisConfig {
     @Bean
     public Config config() {
@@ -21,7 +20,7 @@ public class RedisConfig {
         return config;
     }
 
-    @Bean
+    @Bean(name= "Mymanager")
     public CacheManager cacheManager(Config config) {
         CacheManager manager = Caching.getCachingProvider().getCacheManager();
         manager.createCache("cache", RedissonConfiguration.fromConfig(config));

@@ -6,7 +6,6 @@ import assignment.Kirana.Services.UserService;
 import assignment.Kirana.models.Entity.User;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,7 +58,6 @@ public class UserController {
     }
 
     @GetMapping("/user/login/{userId}")
-    @Cacheable(value = "jwt", key = "#userId")
     public ResponseEntity<String> login(@PathVariable String userId) {
         String loginToken = jwtServices.generateJwtForUser(userId);
         return ResponseEntity.ok(loginToken);

@@ -35,12 +35,6 @@ public class GenerateJwt {
         SecretKey key2 = Jwts.SIG.HS256.key().build();
         return ResponseEntity.ok(key2);
     }
-    //    @GetMapping("/getSecret")
-    //    public ResponseEntity<String> getSecret(){
-    //        String key = jwtHelper.genSecretString();
-    //        Jwts.parser().verifyWith();
-    //        return ResponseEntity.ok(key);
-    //    }
 
     @GetMapping("/jwt/{userId}")
     public ResponseEntity<String> customJwt(@PathVariable String userId) {

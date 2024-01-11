@@ -216,6 +216,7 @@ public class ReportService {
      */
     public ApiResponse getMonthlyReportApiResponse(int month, String userId, String jwtToken)
             throws TokenExpiredException, NotAdminException {
+        System.out.println("entered report");
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);

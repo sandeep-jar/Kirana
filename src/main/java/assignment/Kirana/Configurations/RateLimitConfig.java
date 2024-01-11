@@ -1,5 +1,8 @@
 package assignment.Kirana.Configurations;
 
+import assignment.Kirana.Exceptions.UserNotFound;
+import assignment.Kirana.Services.UserService;
+import assignment.Kirana.models.Entity.User;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
@@ -9,12 +12,14 @@ import java.time.Duration;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 public class RateLimitConfig {
     // autowiring dependencies
 
-    @Autowired public ProxyManager buckets;
+    @Autowired public ProxyManager<String> buckets;
+    @Autowired public UserService userService;
 
     /**
      * @param key In a production env, the resolveBucket function takes in the key param as an
@@ -28,7 +33,11 @@ public class RateLimitConfig {
         return buckets.builder().build(key, configSupplier);
     }
 
-    private Supplier<BucketConfiguration> getConfigSupplierForUser(String key) {
+    private Supplier<BucketConfiguration> getConfigSupplierForUser(String userId) {
+        User user = userService.getUser(userId);
+        if (user == null) {
+            throw new UserNotFound("such user doesnt exists");
+        }
 
         Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
         Bandwidth limit = Bandwidth.classic(2, refill);
