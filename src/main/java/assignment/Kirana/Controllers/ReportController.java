@@ -1,11 +1,12 @@
 package assignment.Kirana.Controllers;
 
+import assignment.Kirana.Configurations.RateLimitConfig;
 import assignment.Kirana.Exceptions.InvalidJwtException;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.ReportService;
 import assignment.Kirana.models.Response.ApiResponse;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.convert.Bucket;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/report")
 public class ReportController {
-
     private ReportService reportService;
     private JwtServices jwtServices;
+
+
 
     /**
      * Constructor to initialize the ReportController with required services.
@@ -24,7 +26,7 @@ public class ReportController {
      * @param jwtServices An instance of JwtServices for JWT token validation.
      */
     @Autowired
-    public ReportController(ReportService reportService, JwtServices jwtServices) {
+    public ReportController(ReportService reportService, JwtServices jwtServices, RateLimitConfig rateLimitConfig) {
         this.reportService = reportService;
         this.jwtServices = jwtServices;
     }
@@ -53,15 +55,12 @@ public class ReportController {
     }
 
     @GetMapping("/yearly/{userId}")
-    public ResponseEntity<ApiResponse> getYearlyReport(@RequestHeader("Authorization") String AuthHeader,
-                                                       @PathVariable String userId, @RequestParam int year)
-            throws Exception
-    {
+    public ResponseEntity<ApiResponse> getYearlyReport(
+            @RequestHeader("Authorization") String AuthHeader,
+            @PathVariable String userId,
+            @RequestParam int year)
+            throws Exception {
         String jwtToken = AuthHeader.replace("Bearer ", "");
-
-        return ResponseEntity.ok(reportService.getYearlyReportApiResponse(year,userId,jwtToken));
-
-
-
+        return ResponseEntity.ok(reportService.getYearlyReportApiResponse(year, userId, jwtToken));
     }
 }

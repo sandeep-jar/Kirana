@@ -18,6 +18,15 @@ public class ExceptionController {
         return new ResponseEntity<ApiResponse>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(value = RateLimitExceededException.class)
+    public ResponseEntity<ApiResponse> rateLimitExceptionHandler(RateLimitExceededException rateLimitException) {
+        ApiResponse response = new ApiResponse();
+        response.setStatus("error");
+        response.setError(rateLimitException.getMessage());
+        response.setSuccess(false);
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.TOO_MANY_REQUESTS);
+    }
+
     @ExceptionHandler(value = TokenExpiredException.class)
     public ResponseEntity<ApiResponse> tokenExpiredHandler(
             TokenExpiredException tokenExpiredException) {
@@ -67,7 +76,8 @@ public class ExceptionController {
     }
 
     @ExceptionHandler(value = InvalidDateComponentsException.class)
-    public ResponseEntity<ApiResponse> invalidDateException(InvalidDateComponentsException invalidDateComponentsException) {
+    public ResponseEntity<ApiResponse> invalidDateException(
+            InvalidDateComponentsException invalidDateComponentsException) {
         ApiResponse response = new ApiResponse();
         response.setStatus("error");
         response.setSuccess(false);

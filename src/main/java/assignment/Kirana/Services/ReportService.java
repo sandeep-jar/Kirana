@@ -7,12 +7,11 @@ import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.Response.ApiResponse;
 import assignment.Kirana.models.Response.MonthlyReport;
+import assignment.Kirana.models.Response.YearlyReport;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
-
-import assignment.Kirana.models.Response.YearlyReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -177,10 +176,8 @@ public class ReportService {
 
     public YearlyReport createYearlyReportOfUser(int year, String userId) {
         // Fetch monthly credit and debit transactions for the specified user
-        List<Transactions> YearlyCredit =
-                transactionsService.getYearlyCreditOfUser(year, userId);
-        List<Transactions> YearlyDebit =
-                transactionsService.getYearlyDebitOfUser(year, userId);
+        List<Transactions> YearlyCredit = transactionsService.getYearlyCreditOfUser(year, userId);
+        List<Transactions> YearlyDebit = transactionsService.getYearlyDebitOfUser(year, userId);
 
         // Calculate total credit and debit amounts, and round off to 2 decimal places
         Double totalCreditAmount = round(amountSum(YearlyCredit), 2);
@@ -189,10 +186,10 @@ public class ReportService {
         // Calculate total amount, average credit, average debit, and average transaction
         Double totalDays = 365.0;
         Double totalAmount = totalDebitAmount + totalCreditAmount;
-        Double averageCredit = round(totalCreditAmount /totalDays,2);
-        Double averageDebit = round(totalDebitAmount /totalDays,2);
-        Double averageTransaction = round(totalAmount/totalDays ,2);
-        Double netAmount = totalCreditAmount-totalDebitAmount;
+        Double averageCredit = round(totalCreditAmount / totalDays, 2);
+        Double averageDebit = round(totalDebitAmount / totalDays, 2);
+        Double averageTransaction = round(totalAmount / totalDays, 2);
+        Double netAmount = totalCreditAmount - totalDebitAmount;
 
         // Create and return MonthlyReport
         YearlyReport report = new YearlyReport();
@@ -222,7 +219,7 @@ public class ReportService {
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
-        if(month<1 || month >12) {
+        if (month < 1 || month > 12) {
             throw new InvalidDateComponentsException("invalid Month");
         }
 
@@ -250,7 +247,7 @@ public class ReportService {
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
-        if(year<0) {
+        if (year < 0) {
             throw new InvalidDateComponentsException("invalid year");
         }
 
@@ -266,9 +263,8 @@ public class ReportService {
 
         // Create ApiResponse with MonthlyReport data and return
         ApiResponse api = new ApiResponse();
-        YearlyReport report = createYearlyReportOfUser( year, userId);
+        YearlyReport report = createYearlyReportOfUser(year, userId);
         api.setData(report);
         return api;
     }
-
 }
