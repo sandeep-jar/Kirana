@@ -82,8 +82,18 @@ public class TransactionsService {
         return transactionRepo.findAllByMonthAndYearAndFrom(month, year, userId);
     }
 
+
     public List<Transactions> getMonthlyCreditOfUser(int month, int year, String userId) {
         return transactionRepo.findAllByMonthAndYearAndTo(month, year, userId);
+    }
+
+    public List<Transactions> getYearlyDebitOfUser(int year, String userId) {
+        return transactionRepo.findAllByYearAndFrom(year, userId);
+    }
+
+
+    public List<Transactions> getYearlyCreditOfUser(int year, String userId) {
+        return transactionRepo.findAllByYearAndTo(year, userId);
     }
 
     public List<Transactions> getAllTransactions() {

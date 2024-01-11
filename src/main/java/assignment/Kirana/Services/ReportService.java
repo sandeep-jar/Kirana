@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import assignment.Kirana.models.Response.YearlyReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -173,6 +175,38 @@ public class ReportService {
         return report;
     }
 
+    public YearlyReport createYearlyReportOfUser(int year, String userId) {
+        // Fetch monthly credit and debit transactions for the specified user
+        List<Transactions> YearlyCredit =
+                transactionsService.getYearlyCreditOfUser(year, userId);
+        List<Transactions> YearlyDebit =
+                transactionsService.getYearlyDebitOfUser(year, userId);
+
+        // Calculate total credit and debit amounts, and round off to 2 decimal places
+        Double totalCreditAmount = round(amountSum(YearlyCredit), 2);
+        Double totalDebitAmount = round(amountSum(YearlyDebit), 2);
+
+        // Calculate total amount, average credit, average debit, and average transaction
+        Double totalDays = 365.0;
+        Double totalAmount = totalDebitAmount + totalCreditAmount;
+        Double averageCredit = round(totalCreditAmount /totalDays,2);
+        Double averageDebit = round(totalDebitAmount /totalDays,2);
+        Double averageTransaction = round(totalAmount/totalDays ,2);
+        Double netAmount = totalCreditAmount-totalDebitAmount;
+
+        // Create and return MonthlyReport
+        YearlyReport report = new YearlyReport();
+        report.setNetProfit(netAmount);
+        report.setTotalTransaction(totalAmount);
+        report.setTotalDebit(totalDebitAmount);
+        report.setTotalCredit(totalCreditAmount);
+        report.setAverageCredit(averageCredit);
+        report.setAverageDebit(averageDebit);
+        report.setAverageTransaction(averageTransaction);
+
+        return report;
+    }
+
     /**
      * Generates an ApiResponse containing the MonthlyReport for the given user.
      *
@@ -210,4 +244,31 @@ public class ReportService {
         api.setData(report);
         return api;
     }
+
+    public ApiResponse getYearlyReportApiResponse(int year, String userId, String jwtToken)
+            throws TokenExpiredException, NotAdminException {
+        // Verify JWT token expiry and admin status
+        boolean isExpired = jwtServices.verifyExpiry(jwtToken);
+        boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+        if(year<0) {
+            throw new InvalidDateComponentsException("invalid year");
+        }
+
+        // Handle token expiration exception
+        if (isExpired) {
+            throw new TokenExpiredException("Login session expired, please login again.");
+        }
+
+        // Handle not admin exception
+        if (!isAdmin) {
+            throw new NotAdminException("Only admin users can access this service.");
+        }
+
+        // Create ApiResponse with MonthlyReport data and return
+        ApiResponse api = new ApiResponse();
+        YearlyReport report = createYearlyReportOfUser( year, userId);
+        api.setData(report);
+        return api;
+    }
+
 }
