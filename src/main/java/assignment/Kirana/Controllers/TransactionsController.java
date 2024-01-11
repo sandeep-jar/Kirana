@@ -5,6 +5,7 @@ import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.TransactionsService;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.Response.ApiResponse;
+import assignment.Kirana.models.TransactionRequest;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionsController {
 
     private final TransactionsService transactionsService;
-
     @Autowired
     public TransactionsController(
             TransactionsService transactionsService,
@@ -27,7 +27,7 @@ public class TransactionsController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addTransaction(
             @RequestHeader("Authorization") String AuthorizationHeader,
-            @RequestBody Transactions data) {
+            @RequestBody TransactionRequest data) {
         String jwtToken = AuthorizationHeader.replace("Bearer ", "");
         return ResponseEntity.ok(transactionsService.transactionHandler(jwtToken, data));
     }

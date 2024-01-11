@@ -1,5 +1,6 @@
 package assignment.Kirana.Services;
 
+import assignment.Kirana.Exceptions.UserNotFound;
 import assignment.Kirana.models.Entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -129,8 +130,13 @@ public class JwtServices {
      * @return The generated JWT token.
      */
     public String generateJwtForUser(String userId) {
+        System.out.println("entered the jwt token generation");
         User user = userService.getUser(userId);
-        // 2 days
+        // null is returned if user is not in database , if null throw error
+        if(user==null) {
+            throw new UserNotFound("such user doesn't exists");
+        }
+        // 2 days expiration time
         Date expirationDate = new Date(System.currentTimeMillis() + 100 * 60 * 60 * 24 * 2);
 
         return Jwts.builder()
