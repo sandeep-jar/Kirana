@@ -1,14 +1,16 @@
 package assignment.Kirana.Services;
 
+import assignment.Kirana.Configurations.RateLimitConfig;
+import assignment.Kirana.Exceptions.RateLimitExceededException;
 import assignment.Kirana.Exceptions.UserNotFound;
 import assignment.Kirana.models.Entity.User;
+import io.github.bucket4j.Bucket;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtServices {
 
-    @Autowired private UserService userService;
+    private final UserService userService;
+    private final RateLimitConfig rateLimiter;
+
+    public JwtServices(UserService userService, RateLimitConfig rateLimiter) {
+        this.rateLimiter = rateLimiter;
+        this.userService = userService;
+    }
 
     /** The secret key used for JWT signing and verification. */
     @Value("${secretKey}")
@@ -131,11 +139,17 @@ public class JwtServices {
      */
     public String generateJwtForUser(String userId) {
         System.out.println("entered the jwt token generation");
+        Bucket bucket = rateLimiter.resolveBucket(userId);
+        if (!bucket.tryConsume(1)) {
+            throw new RateLimitExceededException("request quota exceeded , try after some time");
+        }
+
         User user = userService.getUser(userId);
         // null is returned if user is not in database , if null throw error
-        if(user==null) {
+        if (user == null) {
             throw new UserNotFound("such user doesn't exists");
         }
+
         // 2 days expiration time
         Date expirationDate = new Date(System.currentTimeMillis() + 100 * 60 * 60 * 24 * 2);
 
