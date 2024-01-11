@@ -1,65 +1,73 @@
 package assignment.Kirana.Controllers;
 
-import assignment.Kirana.Helpers.JwtFunctions;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.UserService;
 import assignment.Kirana.models.Entity.User;
+import assignment.Kirana.models.Response.ApiResponse;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/** Controller class for experimenting in jwt */
 @RestController
 public class UserController {
-    @Autowired private JwtFunctions jwtHelper;
 
-    @Autowired private JwtServices jwtServices;
-    @Autowired private UserService userService;
+    private final JwtServices jwtServices;
+    private final UserService userService;
 
-    @PostMapping("/user")
-    public ResponseEntity<String> addUser(@RequestBody User user) {
-        try {
-            userService.addUser(user);
-            return ResponseEntity.ok("User created successfully");
-        } catch (Exception e) {
-            System.out.println("Error in adding user: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Adding the user failed");
-        }
+    /**
+     * Constructor for UserController.
+     *
+     * @param jwtServices The service for handling JWT-related operations.
+     * @param userService The service for handling user-related operations.
+     */
+    public UserController(JwtServices jwtServices, UserService userService) {
+        this.userService = userService;
+        this.jwtServices = jwtServices;
     }
 
+    /**
+     * Adds a new user to the system.
+     *
+     * @param user The user to be added.
+     * @return ResponseEntity containing ApiResponse with the result of the user addition.
+     */
+    @PostMapping("/user/add")
+    public ResponseEntity<ApiResponse> addUser(@RequestBody User user) {
+        return new ResponseEntity<>(userService.addUser(user), HttpStatus.OK);
+    }
+
+    /**
+     * Retrieves a list of all users in the system.
+     *
+     * @return ResponseEntity containing a list of all users.
+     */
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
-        try {
-            List<User> userList = userService.getAllUsers();
-            return ResponseEntity.ok(userList);
-        } catch (Exception e) {
-            System.out.println("Error occurred while getting all users: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        List<User> userList = userService.getAllUsers();
+        return ResponseEntity.ok(userList);
     }
 
+    /**
+     * Retrieves a specific user by their user ID.
+     *
+     * @param userId The user ID for which the user is retrieved.
+     * @return ResponseEntity containing the retrieved user.
+     */
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUser(@PathVariable String userId) {
-        try {
-            User user = userService.getUser(userId);
-            if (user == null) {
-                return ResponseEntity.status(404).body("no such user");
-            } else {
-                return ResponseEntity.ok(user);
-            }
-        } catch (Exception err) {
-            System.out.println("error occured in getUser");
-            System.out.println(err.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error while getting user, try again");
-        }
+    public ResponseEntity<User> getUser(@PathVariable String userId) {
+        User user = userService.getUser(userId);
+        return ResponseEntity.ok(user);
     }
 
+    /**
+     * Generates a JWT token for user login.
+     *
+     * @param userId The user ID for which the JWT token is generated.
+     * @return ResponseEntity containing the generated JWT token.
+     */
     @GetMapping("/user/login/{userId}")
-    @Cacheable(value = "jwt", key = "#userId")
     public ResponseEntity<String> login(@PathVariable String userId) {
         String loginToken = jwtServices.generateJwtForUser(userId);
         return ResponseEntity.ok(loginToken);

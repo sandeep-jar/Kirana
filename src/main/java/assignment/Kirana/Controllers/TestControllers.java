@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/** created just for experimenting and testing please ignore */
 @RestController
 public class TestControllers {
     @Autowired private ExchangeRateService exchangeRateService;

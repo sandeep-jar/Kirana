@@ -3,6 +3,7 @@ package assignment.Kirana.Services;
 import assignment.Kirana.Exceptions.InvalidAmountException;
 import assignment.Kirana.Exceptions.UnAuthenticatedRequest;
 import assignment.Kirana.Repositories.TransactionRepository;
+import assignment.Kirana.Validators.TransactionValidator;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.ExchangeRatesResponse;
 import assignment.Kirana.models.Response.ApiResponse;
@@ -15,24 +16,43 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** Service class for managing financial transactions. */
 @Service
 public class TransactionsService {
     private final TransactionRepository transactionRepo;
     private final JwtServices jwtServices;
 
+    private final TransactionValidator transactionValidator;
+
     private final ExchangeRateService exchangeRateService;
 
+    /**
+     * Constructor for TransactionsService.
+     *
+     * @param transactionRepository The repository for managing transactions.
+     * @param jwtServices The service for JWT token operations.
+     * @param exchangeRateService The service for fetching exchange rates.
+     */
     @Autowired
     public TransactionsService(
             TransactionRepository transactionRepository,
             JwtServices jwtServices,
-            ExchangeRateService exchangeRateService) {
+            ExchangeRateService exchangeRateService,
+            TransactionValidator transactionValidator) {
         this.jwtServices = jwtServices;
         this.transactionRepo = transactionRepository;
         this.exchangeRateService = exchangeRateService;
+        this.transactionValidator = transactionValidator;
     }
 
+    /**
+     * Adds a new transaction to the system.
+     *
+     * @param data The transaction request data.
+     * @return The added transaction.
+     */
     public Transactions addTransaction(TransactionRequest data) {
+        transactionValidator.validateTransactionDetails(data);
         Transactions transaction = new Transactions();
         transaction.setInitialCurrency(data.getInitialCurrency());
         transaction.setFrom(data.getFrom());
@@ -58,6 +78,15 @@ public class TransactionsService {
         return transactionRepo.save(transaction);
     }
 
+    /**
+     * Handles a transaction request and performs necessary validations.
+     *
+     * @param jwtToken The JWT token for authentication.
+     * @param data The transaction request data.
+     * @return ApiResponse containing the result of the transaction.
+     * @throws UnAuthenticatedRequest If the request fails authentication.
+     * @throws InvalidAmountException If the transaction amount is invalid.
+     */
     public ApiResponse transactionHandler(String jwtToken, TransactionRequest data) {
         String userId = data.getFrom();
         boolean auth = jwtServices.verifyUser(jwtToken, userId);
@@ -74,26 +103,92 @@ public class TransactionsService {
         return response;
     }
 
+    /**
+     * Retrieves all transactions for a specific month and year.
+     *
+     * @param month The month for which transactions are to be retrieved.
+     * @param year The year for which transactions are to be retrieved.
+     * @return A list of Transactions for the specified month and year.
+     */
     public List<Transactions> getAllTransactionOfMonth(int month, int year) {
         return transactionRepo.findAllByMonthAndYear(month, year);
     }
 
+    /**
+     * Retrieves monthly debit transactions for a specific user.
+     *
+     * @param month The month for which transactions are to be retrieved.
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of debit Transactions for the specified month, year, and user.
+     */
     public List<Transactions> getMonthlyDebitOfUser(int month, int year, String userId) {
         return transactionRepo.findAllByMonthAndYearAndFrom(month, year, userId);
     }
 
+    /**
+     * Retrieves monthly credit transactions for a specific user.
+     *
+     * @param month The month for which transactions are to be retrieved.
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of credit Transactions for the specified month, year, and user.
+     */
     public List<Transactions> getMonthlyCreditOfUser(int month, int year, String userId) {
         return transactionRepo.findAllByMonthAndYearAndTo(month, year, userId);
     }
 
+    /**
+     * Retrieves yearly debit transactions for a specific user.
+     *
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of debit Transactions for the specified year and user.
+     */
     public List<Transactions> getYearlyDebitOfUser(int year, String userId) {
         return transactionRepo.findAllByYearAndFrom(year, userId);
     }
 
+    /**
+     * Retrieves yearly credit transactions for a specific user.
+     *
+     * @param year The year for which transactions are to be retrieved.
+     * @param userId The ID of the user for whom transactions are to be retrieved.
+     * @return A list of credit Transactions for the specified year and user.
+     */
     public List<Transactions> getYearlyCreditOfUser(int year, String userId) {
         return transactionRepo.findAllByYearAndTo(year, userId);
     }
 
+    /**
+     * @param userId userid of user whose transactions are being fetched
+     * @return list of transactions of past 7 days ,where user is receiver
+     */
+    public List<Transactions> getCreditTransactionOfPastWeek(String userId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        // take start point as 7 days ago
+        LocalDateTime startPoint = currentTime.minusDays(7);
+
+        return transactionRepo.findByTransactionTimeBetweenAndTo(startPoint, currentTime, userId);
+    }
+
+    /**
+     * @param userId userid of user whose transaction are being fetched
+     * @return list of transactions of past 7 days ,where user is sender
+     */
+    public List<Transactions> getDebitTransactionOfPastWeek(String userId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        // take start point as 7 days ago
+        LocalDateTime startPoint = currentTime.minusDays(7);
+
+        return transactionRepo.findByTransactionTimeBetweenAndFrom(startPoint, currentTime, userId);
+    }
+
+    /**
+     * Retrieves all transactions.
+     *
+     * @return A list of all Transactions.
+     */
     public List<Transactions> getAllTransactions() {
         return transactionRepo.findAll();
     }

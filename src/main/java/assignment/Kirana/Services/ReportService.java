@@ -7,6 +7,7 @@ import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.Response.ApiResponse;
 import assignment.Kirana.models.Response.MonthlyReport;
+import assignment.Kirana.models.Response.WeeklyReport;
 import assignment.Kirana.models.Response.YearlyReport;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ReportService {
-
     private final TransactionsService transactionsService;
     private final TransactionRepository transactionRepo;
     private final JwtServices jwtServices;
@@ -174,6 +174,14 @@ public class ReportService {
         return report;
     }
 
+    /**
+     * Takes year userId and returns the YearlyReport, calculates : total amount,average
+     * credit,average debit,netAmount,average transaction,
+     *
+     * @param year year for which report is being created
+     * @param userId userId The user ID for whom the report is being generated.
+     * @return YearlyReport
+     */
     public YearlyReport createYearlyReportOfUser(int year, String userId) {
         // Fetch monthly credit and debit transactions for the specified user
         List<Transactions> YearlyCredit = transactionsService.getYearlyCreditOfUser(year, userId);
@@ -205,6 +213,45 @@ public class ReportService {
     }
 
     /**
+     * Takes year userId and returns the WeeklyReport, calculates : total amount,average
+     * credit,average debit,netAmount,average transaction,
+     *
+     * @param userId userId The user ID for whom the report is being generated.
+     * @return YearlyReport
+     */
+    public WeeklyReport createWeeklyReportOfUser(String userId) {
+        // Fetch monthly credit and debit transactions for the specified user
+        List<Transactions> weeklyCredit =
+                transactionsService.getCreditTransactionOfPastWeek(userId);
+        List<Transactions> weeklyDebit = transactionsService.getDebitTransactionOfPastWeek(userId);
+
+        // Calculate total credit and debit amounts, and round off to 2 decimal places
+        Double totalCreditAmount = round(amountSum(weeklyCredit), 2);
+        Double totalDebitAmount = round(amountSum(weeklyDebit), 2);
+
+        // Calculate total amount, average credit, average debit, and average transaction
+        Double totalDays = 7.0;
+        Double totalAmount = totalDebitAmount + totalCreditAmount;
+        Double averageCredit = round(totalCreditAmount / totalDays, 2);
+        Double averageDebit = round(totalDebitAmount / totalDays, 2);
+        Double averageTransaction = round(totalAmount / totalDays, 2);
+        Double netAmount = totalCreditAmount - totalDebitAmount;
+
+        // Create and return MonthlyReport
+        WeeklyReport report = new WeeklyReport();
+
+        report.setNetProfit(netAmount);
+        report.setTotalTransaction(totalAmount);
+        report.setTotalDebit(totalDebitAmount);
+        report.setTotalCredit(totalCreditAmount);
+        report.setAverageCredit(averageCredit);
+        report.setAverageDebit(averageDebit);
+        report.setAverageTransaction(averageTransaction);
+
+        return report;
+    }
+
+    /**
      * Generates an ApiResponse containing the MonthlyReport for the given user.
      *
      * @param month The month for which the report is generated.
@@ -216,6 +263,7 @@ public class ReportService {
      */
     public ApiResponse getMonthlyReportApiResponse(int month, String userId, String jwtToken)
             throws TokenExpiredException, NotAdminException {
+        System.out.println("entered report");
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
@@ -242,6 +290,17 @@ public class ReportService {
         return api;
     }
 
+    /**
+     * Generates an ApiResponse containing the MonthlyReport for the given user.
+     *
+     * @param year The year for which the report is generated.
+     * @param userId The ID of the user for whom the report is generated.
+     * @param jwtToken The JWT token for authentication and authorization.
+     * @return ApiResponse containing the MonthlyReport and appropriate status.
+     * @throws TokenExpiredException If the provided JWT token is expired.
+     * @throws NotAdminException If the user is not an admin and does not have access.
+     * @throws InvalidDateComponentsException if year is not valid
+     */
     public ApiResponse getYearlyReportApiResponse(int year, String userId, String jwtToken)
             throws TokenExpiredException, NotAdminException {
         // Verify JWT token expiry and admin status
@@ -264,6 +323,39 @@ public class ReportService {
         // Create ApiResponse with MonthlyReport data and return
         ApiResponse api = new ApiResponse();
         YearlyReport report = createYearlyReportOfUser(year, userId);
+        api.setData(report);
+        return api;
+    }
+
+    /**
+     * Generates an ApiResponse containing the MonthlyReport for the given user.
+     *
+     * @param userId The ID of the user for whom the report is generated.
+     * @param jwtToken The JWT token for authentication and authorization.
+     * @return ApiResponse containing the MonthlyReport and appropriate status.
+     * @throws TokenExpiredException If the provided JWT token is expired.
+     * @throws NotAdminException If the user is not an admin and does not have access.
+     * @throws InvalidDateComponentsException if year is not valid
+     */
+    public ApiResponse getWeeklyReportApiResponse(String userId, String jwtToken)
+            throws TokenExpiredException, NotAdminException {
+        // Verify JWT token expiry and admin status
+        boolean isExpired = jwtServices.verifyExpiry(jwtToken);
+        boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+
+        // Handle token expiration exception
+        if (isExpired) {
+            throw new TokenExpiredException("Login session expired, please login again.");
+        }
+
+        // Handle not admin exception
+        if (!isAdmin) {
+            throw new NotAdminException("Only admin users can access this service.");
+        }
+
+        // Create ApiResponse with MonthlyReport data and return
+        ApiResponse api = new ApiResponse();
+        WeeklyReport report = createWeeklyReportOfUser(userId);
         api.setData(report);
         return api;
     }

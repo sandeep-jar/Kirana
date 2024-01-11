@@ -1,7 +1,6 @@
 package assignment.Kirana.Controllers;
 
 import assignment.Kirana.Configurations.RateLimitConfig;
-import assignment.Kirana.Exceptions.InvalidJwtException;
 import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.ReportService;
 import assignment.Kirana.models.Response.ApiResponse;
@@ -13,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/report")
 public class ReportController {
-    private ReportService reportService;
-    private JwtServices jwtServices;
+    private final ReportService reportService;
 
     /**
      * Constructor to initialize the ReportController with required services.
@@ -26,7 +24,6 @@ public class ReportController {
     public ReportController(
             ReportService reportService, JwtServices jwtServices, RateLimitConfig rateLimitConfig) {
         this.reportService = reportService;
-        this.jwtServices = jwtServices;
     }
 
     /**
@@ -35,15 +32,14 @@ public class ReportController {
      * @param AuthorizationHeader The Authorization header containing the JWT token.
      * @param userId The ID of the user for whom the report is requested.
      * @param month The month for which the report is requested.
-     * @return ResponseEntity<ApiResponse> containing the result of the monthly report request.
-     * @throws InvalidJwtException If the provided JWT token is invalid.
+     * @return ResponseEntity<ApiResponse> containing the result of the monthly report request or
+     *     error message if any error
      */
     @GetMapping("/monthly/{userId}")
     public ResponseEntity<ApiResponse> getMonthlyReport(
             @RequestHeader("Authorization") String AuthorizationHeader,
             @PathVariable String userId,
-            @RequestParam int month)
-            throws Exception {
+            @RequestParam int month) {
         // Extract JWT token from Authorization header
         String jwtToken = AuthorizationHeader.replace("Bearer ", "");
 
@@ -52,13 +48,35 @@ public class ReportController {
                 reportService.getMonthlyReportApiResponse(month, userId, jwtToken));
     }
 
+    /**
+     * Retrieves a yearly report for the specified user.
+     *
+     * @param AuthHeader The JWT authorization header, including the "Bearer " prefix.
+     * @param userId The ID of the user to retrieve the report for.
+     * @param year The year for which to retrieve the report.
+     * @return A ResponseEntity containing an ApiResponse with the yearly report data, or an error
+     *     message if the report could not be retrieved.
+     */
     @GetMapping("/yearly/{userId}")
     public ResponseEntity<ApiResponse> getYearlyReport(
             @RequestHeader("Authorization") String AuthHeader,
             @PathVariable String userId,
-            @RequestParam int year)
-            throws Exception {
+            @RequestParam int year) {
         String jwtToken = AuthHeader.replace("Bearer ", "");
         return ResponseEntity.ok(reportService.getYearlyReportApiResponse(year, userId, jwtToken));
+    }
+
+    /**
+     * @param AuthHeader authorization header of request
+     * @param userId user requesting the report
+     * @return returns api response having weekly report or error message if any errors
+     */
+    @GetMapping("/weekly/{userId}")
+    public ResponseEntity<ApiResponse> getWeeklyReport(
+            @RequestHeader("Authorization") String AuthHeader,
+            @PathVariable("userId") String userId) {
+
+        String jwtToken = AuthHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(reportService.getWeeklyReportApiResponse(userId, jwtToken));
     }
 }
