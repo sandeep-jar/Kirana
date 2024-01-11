@@ -19,7 +19,8 @@ public class ExceptionController {
     }
 
     @ExceptionHandler(value = RateLimitExceededException.class)
-    public ResponseEntity<ApiResponse> rateLimitExceptionHandler(RateLimitExceededException rateLimitException) {
+    public ResponseEntity<ApiResponse> rateLimitExceptionHandler(
+            RateLimitExceededException rateLimitException) {
         ApiResponse response = new ApiResponse();
         response.setStatus("error");
         response.setError(rateLimitException.getMessage());

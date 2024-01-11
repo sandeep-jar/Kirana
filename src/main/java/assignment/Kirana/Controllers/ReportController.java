@@ -6,7 +6,6 @@ import assignment.Kirana.Services.JwtServices;
 import assignment.Kirana.Services.ReportService;
 import assignment.Kirana.models.Response.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.convert.Bucket;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +16,6 @@ public class ReportController {
     private ReportService reportService;
     private JwtServices jwtServices;
 
-
-
     /**
      * Constructor to initialize the ReportController with required services.
      *
@@ -26,7 +23,8 @@ public class ReportController {
      * @param jwtServices An instance of JwtServices for JWT token validation.
      */
     @Autowired
-    public ReportController(ReportService reportService, JwtServices jwtServices, RateLimitConfig rateLimitConfig) {
+    public ReportController(
+            ReportService reportService, JwtServices jwtServices, RateLimitConfig rateLimitConfig) {
         this.reportService = reportService;
         this.jwtServices = jwtServices;
     }

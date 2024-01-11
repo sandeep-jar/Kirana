@@ -11,7 +11,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +18,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtServices {
 
+    private final UserService userService;
+    private final RateLimitConfig rateLimiter;
 
-     private final UserService userService;
-     private final RateLimitConfig rateLimiter;
-
-    public JwtServices(UserService userService,RateLimitConfig rateLimiter) {
+    public JwtServices(UserService userService, RateLimitConfig rateLimiter) {
         this.rateLimiter = rateLimiter;
         this.userService = userService;
     }
@@ -142,9 +140,8 @@ public class JwtServices {
     public String generateJwtForUser(String userId) {
         System.out.println("entered the jwt token generation");
         Bucket bucket = rateLimiter.resolveBucket(userId);
-        if(!bucket.tryConsume(1)) {
+        if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
-
         }
 
         User user = userService.getUser(userId);
@@ -152,7 +149,6 @@ public class JwtServices {
         if (user == null) {
             throw new UserNotFound("such user doesn't exists");
         }
-
 
         // 2 days expiration time
         Date expirationDate = new Date(System.currentTimeMillis() + 100 * 60 * 60 * 24 * 2);
