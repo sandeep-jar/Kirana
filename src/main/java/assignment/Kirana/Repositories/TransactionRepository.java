@@ -1,6 +1,7 @@
 package assignment.Kirana.Repositories;
 
 import assignment.Kirana.models.Entity.Transactions;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -94,4 +95,22 @@ public interface TransactionRepository extends MongoRepository<Transactions, Str
      * @return A list of credit Transactions for the specified year and user.
      */
     List<Transactions> findAllByYearAndTo(int year, String to);
+
+    /**
+     * @param day1 staring point
+     * @param day2 ending point
+     * @param from
+     * @return all the transaction between day1 and day2 where user is receiver
+     */
+    List<Transactions> findByTransactionTimeBetweenAndTo(
+            LocalDateTime day1, LocalDateTime day2, String from);
+
+    /**
+     * @param day1 starting point
+     * @param day2 ending point
+     * @param from user
+     * @return list of transaction where user is sender
+     */
+    List<Transactions> findByTransactionTimeBetweenAndFrom(
+            LocalDateTime day1, LocalDateTime day2, String from);
 }

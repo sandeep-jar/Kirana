@@ -143,7 +143,7 @@ public class ExceptionController {
      */
     @ExceptionHandler(value = InvalidCurrencyException.class)
     public ResponseEntity<ApiResponse> invalidDateException(
-           InvalidCurrencyException invalidCurrencyException) {
+            InvalidCurrencyException invalidCurrencyException) {
         ApiResponse response = new ApiResponse();
         response.setStatus("error");
         response.setSuccess(false);

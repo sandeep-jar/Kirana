@@ -1,10 +1,8 @@
 package assignment.Kirana.Validators;
 
-import org.springframework.stereotype.Component;
-
 import java.util.HashSet;
 import java.util.Set;
-
+import org.springframework.stereotype.Component;
 
 /*
 has functions for validating transaction request details
@@ -196,15 +194,12 @@ public class CurrencyCodeValidator {
         VALID_CURRENCY_CODES.add("ZWL");
     }
 
-
     /**
-     *
      * @param currencyCode currency code provided by user in transaction request
      * @return true if valid currency else returns false
      */
-    public  boolean isValidCurrencyCode(String currencyCode) {
+    public boolean isValidCurrencyCode(String currencyCode) {
         String uppercaseCode = currencyCode.toUpperCase();
         return VALID_CURRENCY_CODES.contains(uppercaseCode);
     }
 }
-

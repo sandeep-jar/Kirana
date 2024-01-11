@@ -37,7 +37,8 @@ public class TransactionsService {
     public TransactionsService(
             TransactionRepository transactionRepository,
             JwtServices jwtServices,
-            ExchangeRateService exchangeRateService , TransactionValidator transactionValidator) {
+            ExchangeRateService exchangeRateService,
+            TransactionValidator transactionValidator) {
         this.jwtServices = jwtServices;
         this.transactionRepo = transactionRepository;
         this.exchangeRateService = exchangeRateService;
@@ -157,6 +158,28 @@ public class TransactionsService {
      */
     public List<Transactions> getYearlyCreditOfUser(int year, String userId) {
         return transactionRepo.findAllByYearAndTo(year, userId);
+    }
+
+    /**
+     * @return list of transactions of past 7 days where user is receiver
+     */
+    public List<Transactions> getCreditTransactionOfPastWeek(String userId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        // take start point as 7 days ago
+        LocalDateTime startPoint = currentTime.minusDays(7);
+
+        return transactionRepo.findByTransactionTimeBetweenAndTo(startPoint, currentTime, userId);
+    }
+
+    /**
+     * @return list of transactions of past 7 days where user is sender
+     */
+    public List<Transactions> getDebitTransactionOfPastWeek(String userId) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        // take start point as 7 days ago
+        LocalDateTime startPoint = currentTime.minusDays(7);
+
+        return transactionRepo.findByTransactionTimeBetweenAndFrom(startPoint, currentTime, userId);
     }
 
     /**

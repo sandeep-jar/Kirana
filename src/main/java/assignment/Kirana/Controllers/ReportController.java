@@ -65,4 +65,13 @@ public class ReportController {
         String jwtToken = AuthHeader.replace("Bearer ", "");
         return ResponseEntity.ok(reportService.getYearlyReportApiResponse(year, userId, jwtToken));
     }
+
+    @GetMapping("/weekly/{userId}")
+    public ResponseEntity<ApiResponse> getWeeklyReport(
+            @RequestHeader("Authorization") String AuthHeader,
+            @PathVariable("userId") String userId) {
+
+        String jwtToken = AuthHeader.replace("Bearer ", "");
+        return ResponseEntity.ok(reportService.getWeeklyReportApiResponse(userId, jwtToken));
+    }
 }
