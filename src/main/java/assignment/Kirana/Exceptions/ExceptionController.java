@@ -65,4 +65,13 @@ public class ExceptionController {
         response.setError(userNotFoundException.getMessage());
         return new ResponseEntity<ApiResponse>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(value = InvalidDateComponentsException.class)
+    public ResponseEntity<ApiResponse> invalidDateException(InvalidDateComponentsException invalidDateComponentsException) {
+        ApiResponse response = new ApiResponse();
+        response.setStatus("error");
+        response.setSuccess(false);
+        response.setError(invalidDateComponentsException.getMessage());
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.BAD_REQUEST);
+    }
 }

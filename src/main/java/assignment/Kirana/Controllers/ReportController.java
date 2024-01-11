@@ -37,11 +37,11 @@ public class ReportController {
      * @return ResponseEntity<ApiResponse> containing the result of the monthly report request.
      * @throws InvalidJwtException If the provided JWT token is invalid.
      */
-    @GetMapping("/monthly/{month}/{userId}")
+    @GetMapping("/monthly/{userId}")
     public ResponseEntity<ApiResponse> getMonthlyReport(
             @RequestHeader("Authorization") String AuthorizationHeader,
             @PathVariable String userId,
-            @PathVariable int month)
+            @RequestParam int month)
             throws InvalidJwtException {
         // Extract JWT token from Authorization header
         String jwtToken = AuthorizationHeader.replace("Bearer ", "");

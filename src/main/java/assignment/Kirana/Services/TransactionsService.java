@@ -6,6 +6,7 @@ import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.Entity.Transactions;
 import assignment.Kirana.models.ExchangeRatesResponse;
 import assignment.Kirana.models.Response.ApiResponse;
+import assignment.Kirana.models.TransactionRequest;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -31,14 +32,17 @@ public class TransactionsService {
         this.exchangeRateService = exchangeRateService;
     }
 
-    public Transactions addTransaction(Transactions transaction) {
-
+    public Transactions addTransaction(TransactionRequest data) {
+        Transactions transaction = new Transactions();
+        transaction.setInitialCurrency(data.getInitialCurrency());
+        transaction.setFrom(data.getFrom());
+        transaction.setTo(data.getTo());
         String currencyType = transaction.getInitialCurrency().toUpperCase();
         transaction.setInitialCurrency(currencyType);
         transaction.setFinalCurrency("USD");
         ExchangeRatesResponse ExchangeData = exchangeRateService.getRates();
         Map<String, Double> rates = ExchangeData.getRates();
-        Double convertedAmount = transaction.getAmount() / rates.get(currencyType);
+        Double convertedAmount = data.getAmount() / rates.get(currencyType);
         BigDecimal roundedAmount =
                 new BigDecimal(convertedAmount).setScale(2, RoundingMode.HALF_UP);
         transaction.setAmount(roundedAmount.doubleValue());
@@ -54,7 +58,7 @@ public class TransactionsService {
         return transactionRepo.save(transaction);
     }
 
-    public ApiResponse transactionHandler(String jwtToken, Transactions data) {
+    public ApiResponse transactionHandler(String jwtToken, TransactionRequest data) {
         String userId = data.getFrom();
         boolean auth = jwtServices.verifyUser(jwtToken, userId);
         if (!auth) {

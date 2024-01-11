@@ -1,5 +1,6 @@
 package assignment.Kirana.Services;
 
+import assignment.Kirana.Exceptions.InvalidDateComponentsException;
 import assignment.Kirana.Exceptions.NotAdminException;
 import assignment.Kirana.Exceptions.TokenExpiredException;
 import assignment.Kirana.Repositories.TransactionRepository;
@@ -187,6 +188,9 @@ public class ReportService {
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+        if(month<1 || month >12) {
+            throw new InvalidDateComponentsException("invalid Month");
+        }
 
         // Handle token expiration exception
         if (isExpired) {

@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/user/login/{userId}")
-    @Cacheable(value = "jwt",key = "#userId")
+    @Cacheable(value = "jwt", key = "#userId")
     public ResponseEntity<String> login(@PathVariable String userId) {
         String loginToken = jwtServices.generateJwtForUser(userId);
         return ResponseEntity.ok(loginToken);
