@@ -22,7 +22,7 @@ public class RateLimitConfig {
 
     /**
      * Resolves a Bucket for the specified key (in this case, user ID).
-     *
+     * @param tokenRate the rate for token refilling in bucket for the given key
      * @param key The key for which the Bucket is resolved.
      * @return The resolved Bucket.
      */
