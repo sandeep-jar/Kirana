@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 /*
  *created for experimenting and testing , please ignore
  */
-/** Controller class for handling JWT generation, decoding, and related operations. */
+/** Created for experimenting . */
 @RestController
 public class GenerateJwt {
 

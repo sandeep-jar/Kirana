@@ -278,7 +278,7 @@ public class ReportService {
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
 
         String key = "monthlyReport" + userId;
-        Bucket bucket = rateLimitConfig.resolveBucket(key);
+        Bucket bucket = rateLimitConfig.resolveBucket(key,5);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }
@@ -323,7 +323,7 @@ public class ReportService {
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
         String key = "yearlyReport" + userId;
-        Bucket bucket = rateLimitConfig.resolveBucket(key);
+        Bucket bucket = rateLimitConfig.resolveBucket(key,5);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }
@@ -365,7 +365,7 @@ public class ReportService {
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
         String key = "weeklyReport" + userId;
-        Bucket bucket = rateLimitConfig.resolveBucket(key);
+        Bucket bucket = rateLimitConfig.resolveBucket(key,5);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }

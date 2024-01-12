@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-/** Service class for handling JWT (JSON Web Token) functions. */
+/** Used for learning about jwt , Experimenting and testing. */
 @Service
 public class JwtFunctions {
 

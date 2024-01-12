@@ -138,7 +138,7 @@ public class JwtServices {
      * @return The generated JWT token.
      */
     public String generateJwtForUser(String userId) {
-        Bucket bucket = rateLimiter.resolveBucket(userId);
+        Bucket bucket = rateLimiter.resolveBucket(userId,2);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }

@@ -26,23 +26,22 @@ public class RateLimitConfig {
      * @param key The key for which the Bucket is resolved.
      * @return The resolved Bucket.
      */
-    public Bucket resolveBucket(String key) {
-        Supplier<BucketConfiguration> configSupplier = getConfigSupplierForUser(key);
+    public Bucket resolveBucket(String key,int tokenRate) {
+        Supplier<BucketConfiguration> configSupplier = getConfigSupplierForUser(tokenRate);
         // Does not always create a new bucket, but instead returns the existing one if it exists.
         return buckets.builder().build(key, configSupplier);
     }
 
+
     /**
      * Gets a Supplier for BucketConfiguration based on the user's information.
-     *
-     * @param userId The user ID for which the configuration is obtained.
+     * @param tokenRate he rate at which oken should be refilled per minute
      * @return The Supplier for BucketConfiguration.
      * @throws UserNotFound If the specified user is not found.
      */
-    private Supplier<BucketConfiguration> getConfigSupplierForUser(String userId) {
+    private Supplier<BucketConfiguration> getConfigSupplierForUser(int tokenRate) {
 
         // Configuring rate limit: 2 requests per minute
-
         // Refill is deprecated
         //        Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
         //        Bandwidth limit = Bandwidth.classic(2, refill);
@@ -52,8 +51,8 @@ public class RateLimitConfig {
                 (BucketConfiguration.builder()
                         .addLimit(
                                 limit ->
-                                        limit.capacity(2)
-                                                .refillIntervally(2, Duration.ofMinutes(1)))
+                                        limit.capacity(tokenRate)
+                                                .refillIntervally(tokenRate, Duration.ofMinutes(1)))
                         .build());
         // return () -> (BucketConfiguration.builder().addLimit(limit).build());
     }
