@@ -276,6 +276,13 @@ public class ReportService {
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+
+        String key = "monthlyReport" + userId;
+        Bucket bucket = rateLimitConfig.resolveBucket(key);
+        if (!bucket.tryConsume(1)) {
+            throw new RateLimitExceededException("request quota exceeded , try after some time");
+        }
+
         if (month < 1 || month > 12) {
             throw new InvalidDateComponentsException("invalid Month");
         }
@@ -357,6 +364,11 @@ public class ReportService {
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+        String key = "weeklyReport" + userId;
+        Bucket bucket = rateLimitConfig.resolveBucket(key);
+        if (!bucket.tryConsume(1)) {
+            throw new RateLimitExceededException("request quota exceeded , try after some time");
+        }
 
         // Handle token expiration exception
         if (isExpired) {
