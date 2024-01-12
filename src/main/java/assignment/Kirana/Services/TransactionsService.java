@@ -146,7 +146,8 @@ public class TransactionsService {
      * @return A list of debit Transactions for the specified year and user.
      */
     public List<Transactions> getYearlyDebitOfUser(int year, String userId) {
-        return transactionRepo.findAllByYearAndFrom(year, userId);
+        List<Transactions> lis = transactionRepo.findByYearAndFrom(year, userId);
+        return lis;
     }
 
     /**
@@ -157,7 +158,10 @@ public class TransactionsService {
      * @return A list of credit Transactions for the specified year and user.
      */
     public List<Transactions> getYearlyCreditOfUser(int year, String userId) {
-        return transactionRepo.findAllByYearAndTo(year, userId);
+        // List<Transactions> transactions = transactionRepo.findByYearAndTo(year,userId);
+        LocalDateTime start = LocalDateTime.of(year, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(year + 1, 1, 1, 0, 0, 0);
+        return transactionRepo.findByTransactionTimeBetweenAndTo(start, end, userId);
     }
 
     /**

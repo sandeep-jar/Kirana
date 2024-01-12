@@ -1,7 +1,9 @@
 package assignment.Kirana.Services;
 
+import assignment.Kirana.Configurations.RateLimitConfig;
 import assignment.Kirana.Exceptions.InvalidDateComponentsException;
 import assignment.Kirana.Exceptions.NotAdminException;
+import assignment.Kirana.Exceptions.RateLimitExceededException;
 import assignment.Kirana.Exceptions.TokenExpiredException;
 import assignment.Kirana.Repositories.TransactionRepository;
 import assignment.Kirana.models.Entity.Transactions;
@@ -9,6 +11,7 @@ import assignment.Kirana.models.Response.ApiResponse;
 import assignment.Kirana.models.Response.MonthlyReport;
 import assignment.Kirana.models.Response.WeeklyReport;
 import assignment.Kirana.models.Response.YearlyReport;
+import io.github.bucket4j.Bucket;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -26,6 +29,8 @@ public class ReportService {
     private final TransactionRepository transactionRepo;
     private final JwtServices jwtServices;
 
+    private final RateLimitConfig rateLimitConfig;
+
     /**
      * Constructor to initialize the ReportService with required services.
      *
@@ -37,10 +42,12 @@ public class ReportService {
     public ReportService(
             TransactionsService transactionsService,
             TransactionRepository transactionRepository,
-            JwtServices jwtServices) {
+            JwtServices jwtServices,
+            RateLimitConfig rateLimitConfig) {
         this.jwtServices = jwtServices;
         this.transactionRepo = transactionRepository;
         this.transactionsService = transactionsService;
+        this.rateLimitConfig = rateLimitConfig;
     }
 
     /*
@@ -115,6 +122,7 @@ public class ReportService {
      * @return The yearly average transaction amount.
      */
     public Double YearlyAverage(int year) {
+
         List<Transactions> transactions = transactionRepo.findAllByYear(year);
         OptionalDouble average =
                 transactions.stream().mapToDouble(Transactions::getAmount).average();
@@ -197,7 +205,7 @@ public class ReportService {
         Double averageCredit = round(totalCreditAmount / totalDays, 2);
         Double averageDebit = round(totalDebitAmount / totalDays, 2);
         Double averageTransaction = round(totalAmount / totalDays, 2);
-        Double netAmount = totalCreditAmount - totalDebitAmount;
+        Double netAmount = round(totalCreditAmount - totalDebitAmount, 2);
 
         // Create and return MonthlyReport
         YearlyReport report = new YearlyReport();
@@ -208,6 +216,7 @@ public class ReportService {
         report.setAverageCredit(averageCredit);
         report.setAverageDebit(averageDebit);
         report.setAverageTransaction(averageTransaction);
+        report.setNetProfit(netAmount);
 
         return report;
     }
@@ -306,18 +315,24 @@ public class ReportService {
         // Verify JWT token expiry and admin status
         boolean isExpired = jwtServices.verifyExpiry(jwtToken);
         boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+        String key = "yearlyReport" + userId;
+        Bucket bucket = rateLimitConfig.resolveBucket(key);
+        if (!bucket.tryConsume(1)) {
+            throw new RateLimitExceededException("request quota exceeded , try after some time");
+        }
+
         if (year < 0) {
             throw new InvalidDateComponentsException("invalid year");
         }
 
         // Handle token expiration exception
-        if (isExpired) {
-            throw new TokenExpiredException("Login session expired, please login again.");
-        }
 
         // Handle not admin exception
         if (!isAdmin) {
             throw new NotAdminException("Only admin users can access this service.");
+        }
+        if (isExpired) {
+            throw new TokenExpiredException("Login session expired, please login again.");
         }
 
         // Create ApiResponse with MonthlyReport data and return

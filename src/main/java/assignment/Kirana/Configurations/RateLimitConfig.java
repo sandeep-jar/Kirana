@@ -2,11 +2,8 @@ package assignment.Kirana.Configurations;
 
 import assignment.Kirana.Exceptions.UserNotFound;
 import assignment.Kirana.Services.UserService;
-import assignment.Kirana.models.Entity.User;
-import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
-import io.github.bucket4j.Refill;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -16,7 +13,6 @@ import org.springframework.stereotype.Component;
 /** Configuration class for rate limiting using Bucket4j library. */
 @Component
 public class RateLimitConfig {
-
 
     /** ProxyManager for managing the creation and retrieval of buckets. */
     @Autowired public ProxyManager<String> buckets;
@@ -44,20 +40,21 @@ public class RateLimitConfig {
      * @throws UserNotFound If the specified user is not found.
      */
     private Supplier<BucketConfiguration> getConfigSupplierForUser(String userId) {
-        User user = userService.getUser(userId);
-        if (user == null) {
-            throw new UserNotFound("User not found: " + userId);
-        }
 
         // Configuring rate limit: 2 requests per minute
 
         // Refill is deprecated
-//        Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
-//        Bandwidth limit = Bandwidth.classic(2, refill);
+        //        Refill refill = Refill.intervally(2, Duration.ofMinutes(1));
+        //        Bandwidth limit = Bandwidth.classic(2, refill);
 
         // new syntax from bucket4j documentation
         return () ->
-                (BucketConfiguration.builder().addLimit(limit -> limit.capacity(2).refillIntervally(2,Duration.ofMinutes(1))).build());
-       // return () -> (BucketConfiguration.builder().addLimit(limit).build());
+                (BucketConfiguration.builder()
+                        .addLimit(
+                                limit ->
+                                        limit.capacity(2)
+                                                .refillIntervally(2, Duration.ofMinutes(1)))
+                        .build());
+        // return () -> (BucketConfiguration.builder().addLimit(limit).build());
     }
 }
