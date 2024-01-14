@@ -241,7 +241,7 @@ public class ReportService {
         Double averageCredit = round(totalCreditAmount / totalDays, 2);
         Double averageDebit = round(totalDebitAmount / totalDays, 2);
         Double averageTransaction = round(totalAmount / totalDays, 2);
-        Double netAmount = totalCreditAmount - totalDebitAmount;
+        Double netAmount = round(totalCreditAmount - totalDebitAmount,2);
 
         // Create and return MonthlyReport
         WeeklyReport report = new WeeklyReport();
