@@ -1,6 +1,7 @@
 package assignment.Kirana.Services;
 
 import assignment.Kirana.Configurations.RateLimitConfig;
+import assignment.Kirana.Exceptions.InvalidJwtException;
 import assignment.Kirana.Exceptions.RateLimitExceededException;
 import assignment.Kirana.Exceptions.UserNotFound;
 import assignment.Kirana.models.Entity.User;
@@ -122,13 +123,18 @@ public class JwtServices {
      * @return The user ID extracted from the JWT token.
      */
     public String getUserIdFromJwt(String jwtToken) {
-        Claims claimData =
-                Jwts.parser()
-                        .verifyWith(getSignKey())
-                        .build()
-                        .parseSignedClaims(jwtToken)
-                        .getPayload();
-        return claimData.get("userId", String.class);
+        try {
+            Claims claimData =
+                    Jwts.parser()
+                            .verifyWith(getSignKey())
+                            .build()
+                            .parseSignedClaims(jwtToken)
+                            .getPayload();
+            return claimData.get("userId", String.class);
+        }
+        catch (Exception err) {
+            return null;
+        }
     }
 
     /**
@@ -138,7 +144,7 @@ public class JwtServices {
      * @return The generated JWT token.
      */
     public String generateJwtForUser(String userId) {
-        Bucket bucket = rateLimiter.resolveBucket(userId,2);
+        Bucket bucket = rateLimiter.resolveBucket(userId, 2);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }
@@ -158,5 +164,9 @@ public class JwtServices {
                 .claim("role", user.getRole())
                 .signWith(getSignKey())
                 .compact();
+    }
+
+    public boolean validateToken(String jwtToken, String userId) {
+        return (verifyUser(jwtToken, userId) && !verifyExpiry(jwtToken));
     }
 }

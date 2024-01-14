@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 public class ReportService {
     private final TransactionsService transactionsService;
     private final TransactionRepository transactionRepo;
-    private final JwtServices jwtServices;
 
     private final RateLimitConfig rateLimitConfig;
 
@@ -36,15 +35,13 @@ public class ReportService {
      *
      * @param transactionsService An instance of TransactionsService for fetching transaction data.
      * @param transactionRepository An instance of TransactionRepository for database interactions.
-     * @param jwtServices An instance of JwtServices for JWT token validation.
      */
     @Autowired
     public ReportService(
             TransactionsService transactionsService,
             TransactionRepository transactionRepository,
-            JwtServices jwtServices,
             RateLimitConfig rateLimitConfig) {
-        this.jwtServices = jwtServices;
+
         this.transactionRepo = transactionRepository;
         this.transactionsService = transactionsService;
         this.rateLimitConfig = rateLimitConfig;
@@ -265,36 +262,19 @@ public class ReportService {
      *
      * @param month The month for which the report is generated.
      * @param userId The ID of the user for whom the report is generated.
-     * @param jwtToken The JWT token for authentication and authorization.
      * @return ApiResponse containing the MonthlyReport and appropriate status.
-     * @throws TokenExpiredException If the provided JWT token is expired.
-     * @throws NotAdminException If the user is not an admin and does not have access.
      */
-    public ApiResponse getMonthlyReportApiResponse(int month, String userId, String jwtToken)
-            throws TokenExpiredException, NotAdminException {
+    public ApiResponse getMonthlyReportApiResponse(int month, String userId) {
         System.out.println("entered report");
-        // Verify JWT token expiry and admin status
-        boolean isExpired = jwtServices.verifyExpiry(jwtToken);
-        boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
 
         String key = "monthlyReport" + userId;
-        Bucket bucket = rateLimitConfig.resolveBucket(key,5);
+        Bucket bucket = rateLimitConfig.resolveBucket(key, 5);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }
 
         if (month < 1 || month > 12) {
             throw new InvalidDateComponentsException("invalid Month");
-        }
-
-        // Handle token expiration exception
-        if (isExpired) {
-            throw new TokenExpiredException("Login session expired, please login again.");
-        }
-
-        // Handle not admin exception
-        if (!isAdmin) {
-            throw new NotAdminException("Only admin users can access this service.");
         }
 
         // Create ApiResponse with MonthlyReport data and return
@@ -311,35 +291,18 @@ public class ReportService {
      *
      * @param year The year for which the report is generated.
      * @param userId The ID of the user for whom the report is generated.
-     * @param jwtToken The JWT token for authentication and authorization.
      * @return ApiResponse containing the MonthlyReport and appropriate status.
      * @throws TokenExpiredException If the provided JWT token is expired.
-     * @throws NotAdminException If the user is not an admin and does not have access.
-     * @throws InvalidDateComponentsException if year is not valid
      */
-    public ApiResponse getYearlyReportApiResponse(int year, String userId, String jwtToken)
-            throws TokenExpiredException, NotAdminException {
-        // Verify JWT token expiry and admin status
-        boolean isExpired = jwtServices.verifyExpiry(jwtToken);
-        boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+    public ApiResponse getYearlyReportApiResponse(int year, String userId) {
         String key = "yearlyReport" + userId;
-        Bucket bucket = rateLimitConfig.resolveBucket(key,5);
+        Bucket bucket = rateLimitConfig.resolveBucket(key, 5);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
         }
 
         if (year < 0) {
             throw new InvalidDateComponentsException("invalid year");
-        }
-
-        // Handle token expiration exception
-
-        // Handle not admin exception
-        if (!isAdmin) {
-            throw new NotAdminException("Only admin users can access this service.");
-        }
-        if (isExpired) {
-            throw new TokenExpiredException("Login session expired, please login again.");
         }
 
         // Create ApiResponse with MonthlyReport data and return
@@ -353,31 +316,18 @@ public class ReportService {
      * Generates an ApiResponse containing the MonthlyReport for the given user.
      *
      * @param userId The ID of the user for whom the report is generated.
-     * @param jwtToken The JWT token for authentication and authorization.
      * @return ApiResponse containing the MonthlyReport and appropriate status.
      * @throws TokenExpiredException If the provided JWT token is expired.
      * @throws NotAdminException If the user is not an admin and does not have access.
      * @throws InvalidDateComponentsException if year is not valid
      */
-    public ApiResponse getWeeklyReportApiResponse(String userId, String jwtToken)
+    public ApiResponse getWeeklyReportApiResponse(String userId)
             throws TokenExpiredException, NotAdminException {
-        // Verify JWT token expiry and admin status
-        boolean isExpired = jwtServices.verifyExpiry(jwtToken);
-        boolean isAdmin = jwtServices.verifyAdmin(jwtToken);
+
         String key = "weeklyReport" + userId;
-        Bucket bucket = rateLimitConfig.resolveBucket(key,5);
+        Bucket bucket = rateLimitConfig.resolveBucket(key, 5);
         if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("request quota exceeded , try after some time");
-        }
-
-        // Handle token expiration exception
-        if (isExpired) {
-            throw new TokenExpiredException("Login session expired, please login again.");
-        }
-
-        // Handle not admin exception
-        if (!isAdmin) {
-            throw new NotAdminException("Only admin users can access this service.");
         }
 
         // Create ApiResponse with MonthlyReport data and return

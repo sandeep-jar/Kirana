@@ -29,16 +29,13 @@ public class TransactionsController {
     /**
      * Adds a new transaction.
      *
-     * @param AuthorizationHeader The authorization header containing the JWT token.
      * @param data The transaction data to be added.
      * @return ResponseEntity containing ApiResponse with the result of the transaction addition.
      */
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse> addTransaction(
-            @RequestHeader("Authorization") String AuthorizationHeader,
-            @RequestBody TransactionRequest data) {
-        String jwtToken = AuthorizationHeader.replace("Bearer ", "");
-        return ResponseEntity.ok(transactionsService.transactionHandler(jwtToken, data));
+    public ResponseEntity<ApiResponse> addTransaction(@RequestBody TransactionRequest data) {
+
+        return ResponseEntity.ok(transactionsService.transactionHandler(data));
     }
 
     /**

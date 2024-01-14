@@ -90,14 +90,12 @@ public interface TransactionRepository extends MongoRepository<Transactions, Str
             LocalDateTime day1, LocalDateTime day2, String from);
 
     /**
-     *
      * @param year year of transaction
      * @return list of transaction of the given year
      */
     List<Transactions> findAllByYear(int year);
 
     /**
-     *
      * @param year year for which the transaction is being fetched
      * @param from the userId
      * @return list of transactions of given user in the given year
@@ -105,7 +103,6 @@ public interface TransactionRepository extends MongoRepository<Transactions, Str
     List<Transactions> findAllByYearAndFrom(int year, String from);
 
     /**
-     *
      * @param year year for which the transaction is being fetched
      * @param from userid
      * @return list of transactions of given user in the given year
@@ -113,7 +110,6 @@ public interface TransactionRepository extends MongoRepository<Transactions, Str
     List<Transactions> findByYearAndFrom(int year, String from);
 
     /**
-     *
      * @param year year for which the transaction is being fetched
      * @param from userid
      * @return list of transactions of given user in the given year

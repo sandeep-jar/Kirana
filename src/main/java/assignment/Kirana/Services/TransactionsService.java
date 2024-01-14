@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionsService {
     private final TransactionRepository transactionRepo;
-    private final JwtServices jwtServices;
+
 
     private final TransactionValidator transactionValidator;
 
@@ -30,16 +30,16 @@ public class TransactionsService {
      * Constructor for TransactionsService.
      *
      * @param transactionRepository The repository for managing transactions.
-     * @param jwtServices The service for JWT token operations.
+
      * @param exchangeRateService The service for fetching exchange rates.
      */
     @Autowired
     public TransactionsService(
             TransactionRepository transactionRepository,
-            JwtServices jwtServices,
+
             ExchangeRateService exchangeRateService,
             TransactionValidator transactionValidator) {
-        this.jwtServices = jwtServices;
+
         this.transactionRepo = transactionRepository;
         this.exchangeRateService = exchangeRateService;
         this.transactionValidator = transactionValidator;
@@ -81,18 +81,13 @@ public class TransactionsService {
     /**
      * Handles a transaction request and performs necessary validations.
      *
-     * @param jwtToken The JWT token for authentication.
+
      * @param data The transaction request data.
      * @return ApiResponse containing the result of the transaction.
      * @throws UnAuthenticatedRequest If the request fails authentication.
      * @throws InvalidAmountException If the transaction amount is invalid.
      */
-    public ApiResponse transactionHandler(String jwtToken, TransactionRequest data) {
-        String userId = data.getFrom();
-        boolean auth = jwtServices.verifyUser(jwtToken, userId);
-        if (!auth) {
-            throw new UnAuthenticatedRequest("your request failed authentication");
-        }
+    public ApiResponse transactionHandler(TransactionRequest data) {
         if (data.getAmount() <= 0) {
             throw new InvalidAmountException("amount should be greater than zero");
         }
